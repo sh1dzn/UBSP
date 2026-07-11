@@ -341,6 +341,7 @@
   background: var(--paper);
   padding: 16px 18px 40px;
   overflow-y: auto;
+  min-width: 0;
 }
 
 .adm-preview-head {
@@ -352,7 +353,20 @@
 .adm-preview-stages { display: flex; flex-wrap: wrap; gap: 6px; }
 .adm-preview-stages .chip { cursor: pointer; border: none; }
 
-.adm-preview-frame { font-size: 14px; }
+.adm-preview-frame {
+  font-size: 14px;
+  min-width: 0;
+}
+
+/* The preview is a narrow container even on wide screens. Let the nested
+   application form respond to the pane width rather than the viewport. */
+.adm-preview-frame .fr-layout {
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+.adm-preview-frame .fr-sidebar {
+  position: static;
+}
 .adm-preview-frame .fr-main { padding: 18px; }
 
 /* ---------- модалки ---------- */
