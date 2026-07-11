@@ -436,3 +436,6 @@
 }
 
 .cab-user-info { display: flex; flex-direction: column; line-height: 1.3; }
+
+/* карточка пользователя внутри тёмной фото-шапки */
+.page-hero .cab-user-card { color: var(--ink); }

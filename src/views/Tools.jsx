@@ -4,6 +4,7 @@ import {
   Calculator, FileDown, BookOpen, ListChecks, ChevronDown, ChevronUp, Download,
 } from "lucide-react";
 import { tools } from "../data/tools.js";
+import PageHero from "../shell/PageHero.jsx";
 
 function formatMoney(n) {
   if (!n) return "";
@@ -152,14 +153,12 @@ export default function Tools({ notify, openAssistant }) {
 
   return (
     <div className="container">
-      <section className="mod-hero">
-        <span className="eyebrow">Инструменты</span>
-        <h1>Всё для запуска и роста бизнеса</h1>
-        <p className="mod-hero-sub">
-          Калькуляторы, шаблоны документов, пошаговые гайды и чек-листы — чтобы подготовиться к заявке
-          заранее и не терять время на рассмотрении.
-        </p>
-      </section>
+      <PageHero
+        photo="/assets/dir-fields.jpg"
+        eyebrow="Инструменты"
+        title="Всё для запуска и роста бизнеса"
+        sub="Калькуляторы, шаблоны документов, пошаговые гайды и чек-листы — подготовьтесь к заявке заранее."
+      />
 
       <section className="mod-section">
         <div className="mod-section-head">

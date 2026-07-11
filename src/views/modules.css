@@ -193,3 +193,11 @@
 .mod-cta-band { margin-top: 32px; padding: 28px; border-radius: var(--r-lg); background: var(--ink-2); color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .mod-cta-band h3 { color: #fff; font-size: 18px; margin-bottom: 4px; }
 .mod-cta-band p { color: #a9b7c2; font-size: 13.5px; }
+
+/* статистика в фото-шапке */
+.page-hero .mod-hero-stats.on-dark {
+  display: flex; gap: 26px; flex-wrap: wrap; margin-top: 20px;
+  background: transparent; border: none; padding: 0;
+}
+.page-hero .mod-hero-stats.on-dark .mod-stat { color: rgba(255, 255, 255, 0.8); font-size: 13px; }
+.page-hero .mod-hero-stats.on-dark .mod-stat b { color: #fff; }

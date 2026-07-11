@@ -2,6 +2,7 @@
 import { useMemo, useState } from "react";
 import { Search, ExternalLink, PlayCircle, X } from "lucide-react";
 import { reports } from "../data/reports.js";
+import PageHero from "../shell/PageHero.jsx";
 
 function typeLabel(type) {
   return type;
@@ -59,14 +60,12 @@ export default function Reports() {
 
   return (
     <div className="container">
-      <section className="mod-hero">
-        <span className="eyebrow">Аналитика</span>
-        <h1>Аналитика и отчётность группы</h1>
-        <p className="mod-hero-sub">
-          Единый каталог отчётов, исследований и дашбордов дочерних организаций Байтерека — без поиска по
-          отдельным сайтам институтов развития.
-        </p>
-      </section>
+      <PageHero
+        photo="/assets/dir-export.jpg"
+        eyebrow="Аналитика"
+        title="Аналитика и отчётность группы"
+        sub="Единый каталог отчётов, исследований и дашбордов дочерних организаций Байтерека — без поиска по отдельным сайтам."
+      />
 
       <section className="mod-section">
         <div className="mod-reports-toolbar">

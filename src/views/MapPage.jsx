@@ -4,11 +4,8 @@ import { ChevronDown, MapPin, X, RotateCcw } from "lucide-react";
 import { projects, projectStats } from "../data/projects.js";
 import { dictionaries } from "../data/dictionaries.js";
 import { KZ_OUTLINE } from "../data/kzOutline.js";
+import PageHero from "../shell/PageHero.jsx";
 
-// Упрощённый узнаваемый контур Казахстана: широкий запад с каспийским
-// изгибом и полуостровом Мангистау, северный выступ к Петропавловску,
-// «клюв» на юго-восток к Жетысу/Алматы, волнистая южная граница.
-;
 
 const ORG_COLOR_VAR = {
   "БРК": "--org-brk",
@@ -89,20 +86,19 @@ export default function MapPage({ notify }) {
 
   return (
     <div className="container">
-      <section className="mod-hero">
-        <span className="eyebrow">Карта проектов</span>
-        <h1>Проекты, профинансированные группой Байтерек</h1>
-        <p className="mod-hero-sub">
-          Кредиты, лизинг, гарантии и субсидии, доведённые до конкретных предприятий по всей стране —
-          от животноводческих ферм до промышленных производств.
-        </p>
-        <div className="mod-hero-stats">
+      <PageHero
+        photo="/assets/dir-rail.jpg"
+        eyebrow="Карта проектов"
+        title="Проекты, профинансированные группой Байтерек"
+        sub="Кредиты, лизинг, гарантии и субсидии, доведённые до конкретных предприятий по всей стране."
+      >
+        <div className="mod-hero-stats on-dark">
           <span className="mod-stat"><b className="mono">{projectStats.total}</b> проектов</span>
           <span className="mod-stat"><b className="mono">{(projectStats.totalAmountBln / 1000).toLocaleString("ru-RU", { maximumFractionDigits: 2 })} трлн ₸</b></span>
           <span className="mod-stat"><b className="mono">{projectStats.regionsCovered}</b> регионов</span>
           <span className="mod-stat"><b className="mono">{projectStats.jobs.toLocaleString("ru-RU")}</b> рабочих мест</span>
         </div>
-      </section>
+      </PageHero>
 
       <section className="mod-section mod-map-layout">
         <aside className={"mod-filters" + (filtersOpen ? " open" : "")}>

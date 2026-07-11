@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Search, Bot, Layers, X } from "lucide-react";
 import api from "../api.js";
+import PageHero from "../shell/PageHero.jsx";
 
 const KINDS = ["Кредитование", "Лизинг", "Гарантирование", "Субсидирование", "Экспорт", "Страхование", "Инвестиции"];
 
@@ -71,19 +72,21 @@ export default function Catalog({ go, route, openAssistant }) {
 
   return (
     <div className="container pub-section">
-      <div className="pub-catalog-hint">
-        <span><Bot size={15} style={{ verticalAlign: "-3px", marginRight: 6 }} />Не знаете, что выбрать? Опишите задачу — навигатор подберёт меру поддержки.</span>
-        <button className="btn btn-sm btn-primary" onClick={() => openAssistant(search || undefined)}>
-          Спросить навигатора
-        </button>
-      </div>
-
-      <div className="pub-catalog-head">
-        <h1>Каталог мер поддержки</h1>
-        <span className="pub-catalog-count">
-          {filtered === null ? "загрузка…" : `Найдено: ${filtered.length}`}
-        </span>
-      </div>
+      <PageHero
+        photo="/assets/hero-steppe.jpg"
+        eyebrow="Каталог"
+        title="Меры поддержки бизнеса"
+        sub="Кредиты, лизинг, гарантии и субсидии восьми институтов развития — в одном каталоге с фильтрами."
+      >
+        <div className="page-hero-actions">
+          <button className="pub-cta-lime" onClick={() => openAssistant(search || undefined)}>
+            Спросить навигатора <span className="pub-cta-circle"><Bot size={15} /></span>
+          </button>
+          <span className="mono" style={{ fontSize: 13, color: "rgba(255,255,255,0.85)" }}>
+            {filtered === null ? "загрузка…" : `найдено: ${filtered.length}`}
+          </span>
+        </div>
+      </PageHero>
 
       <div className="pub-catalog-layout">
         <aside className="pub-filters">

@@ -13,6 +13,7 @@ import {
   User2,
 } from "lucide-react";
 import api from "../api.js";
+import PageHero from "../shell/PageHero.jsx";
 
 const APPLICANT = { name: "ТОО «Demo Trans Logistics»", bin: "123456789012" };
 
@@ -101,10 +102,11 @@ export default function Cabinet({ go, notify, openAssistant }) {
 
   return (
     <div className="container cab-page">
-      <div className="cab-head">
-        <span className="eyebrow">Кабинет предпринимателя</span>
-        <div className="spread cab-head-row">
-          <h1>Личный кабинет</h1>
+      <PageHero
+        eyebrow="Кабинет предпринимателя"
+        title="Личный кабинет"
+      >
+        <div className="page-hero-actions">
           <div className="cab-user-card card">
             <div className="cab-user-icon">
               <User2 size={18} />
@@ -120,7 +122,7 @@ export default function Cabinet({ go, notify, openAssistant }) {
             </span>
           </div>
         </div>
-      </div>
+      </PageHero>
 
       <div className="cab-tabs row">
         <button
