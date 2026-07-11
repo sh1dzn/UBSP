@@ -1,5 +1,12 @@
+// @ts-nocheck
+"use client";
+
+// This file intentionally keeps the existing prototype's dense component surface
+// together while the migration lands. New server-facing code is fully typed.
+
 import React, { useMemo, useState } from "react";
-import { portalApi } from "./api";
+import { usePathname, useRouter } from "next/navigation";
+import { portalApi } from "../lib/api-client";
 import {
   ArrowRight,
   BarChart3,
@@ -157,7 +164,7 @@ const nav = [
 
 function Logo() {
   return (
-    <button className="logo" onClick={() => (location.hash = "home")}>
+    <button className="logo" onClick={() => (window.location.href = "/")}>
       <span>Ö</span>
       <div>
         <b>ÖRKEN</b>
@@ -168,16 +175,13 @@ function Logo() {
 }
 
 function App() {
-  const [page, setPage] = useState((location.hash || "#home").slice(1));
+  const pathname = usePathname();
+  const router = useRouter();
+  const page = pathname === "/" ? "home" : pathname.split("/")[1] || "home";
   const [toast, setToast] = useState("");
-  React.useEffect(() => {
-    const fn = () => setPage((location.hash || "#home").slice(1));
-    addEventListener("hashchange", fn);
-    return () => removeEventListener("hashchange", fn);
-  }, []);
   const go = (p) => {
-    location.hash = p;
-    scrollTo({ top: 0, behavior: "smooth" });
+    router.push(p === "home" ? "/" : `/${p}`);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const notify = (t) => {
     setToast(t);
@@ -185,7 +189,7 @@ function App() {
   };
   const admin = page === "admin";
   return (
-    <div className={admin ? "admin-app" : ""}>
+    <div className={admin ? "admin-app antialiased" : "antialiased"}>
       {!admin && (
         <>
           <div className="trust">

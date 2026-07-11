@@ -3,6 +3,9 @@ node_modules/
 
 # Production builds
 dist/
+.next/
+*.tsbuildinfo
+next-env.d.ts
 
 # Local environment files
 .env

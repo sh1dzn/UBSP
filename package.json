@@ -4,19 +4,28 @@
   "version": "0.2.0",
   "type": "module",
   "scripts": {
-    "dev": "node dev.mjs",
-    "server": "node server.mjs",
-    "build": "vite build",
-    "start": "node server.mjs --production",
-    "preview": "vite preview"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
   },
   "dependencies": {
-    "@vitejs/plugin-react": "latest",
+    "@tailwindcss/postcss": "4.3.2",
     "lucide-react": "latest",
+    "next": "16.2.10",
     "react": "latest",
     "react-dom": "latest",
-    "typescript": "latest",
-    "vite": "latest"
+    "tailwindcss": "4.3.2"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@eslint/js": "latest",
+    "@typescript/native": "npm:typescript@7.0.2",
+    "@typescript/typescript6": "6.0.2",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "eslint": "latest",
+    "typescript": "npm:@typescript/typescript6@6.0.2"
+  }
 }
