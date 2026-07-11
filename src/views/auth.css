@@ -43,6 +43,7 @@
 }
 .user-chip-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .user-menu {
+  color: var(--ink);
   position: absolute; right: 0; top: calc(100% + 8px); z-index: 120;
   min-width: 240px; background: var(--card); border: 1px solid var(--line);
   border-radius: var(--r-lg); box-shadow: var(--shadow-lift); padding: 8px;
@@ -61,3 +62,7 @@
 
 .login-launch { border-radius: var(--r-pill); padding: 10px 20px; font-weight: 700; }
 .site-header.over-hero .login-launch { background: var(--lime); border-color: var(--lime); color: var(--lime-ink); }
+
+@media (max-width: 720px) {
+  .user-menu { position: fixed; left: 12px; right: 12px; top: 66px; min-width: 0; }
+}

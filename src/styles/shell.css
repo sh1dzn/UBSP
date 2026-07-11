@@ -126,9 +126,14 @@
 @media (max-width: 720px) {
   .site-header-inner { gap: 8px; height: 64px; }
   .site-header.over-hero .site-header-inner { height: 68px; }
-  .user-chip { padding: 8px; max-width: 40px; }
+  .user-chip {
+    padding: 0; width: 40px; height: 40px; max-width: 40px;
+    justify-content: center; border-radius: 50%;
+  }
   .user-chip .user-chip-name,
-  .user-chip svg:last-child { display: none; }
+  .user-chip > svg { display: none; }
+  .user-chip-icon { width: 30px; height: 30px; }
+  .user-chip-icon svg { width: 17px; height: 17px; display: block; }
   .assistant-launch { padding: 9px 11px; }
   .assistant-launch .assistant-label { display: none; }
   .brand-mark { width: 34px; height: 34px; }
