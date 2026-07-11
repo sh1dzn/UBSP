@@ -301,19 +301,60 @@ export default function Assistant({ go, open, prompt, onClose, onOpen }) {
     [handleExplain, handleMatch, closeAndGo]
   );
 
+  /* LLM-режим (OpenRouter): сервер собирает системный промпт из живых схем конструктора.
+     При отсутствии ключа или ошибке — локальный детерминированный движок. */
+  const buildLlmReply = useCallback(
+    async (history) => {
+      const payload = history
+        .filter((m) => m.text)
+        .map((m) => ({ role: m.role === "user" ? "user" : "assistant", content: m.text }));
+      const res = await api.aiChat(payload);
+      if (!res || res.fallback || !res.text) return null;
+
+      const reply = { text: res.text.replace(/\*\*/g, ""), llm: true };
+      if (res.services && res.services.length) {
+        const services = await ensureServices();
+        const byId = new Map(services.map((s) => [s.id, s]));
+        const matches = res.services
+          .map((id) => byId.get(id))
+          .filter(Boolean)
+          .map((s) => ({ serviceId: s.id, title: s.title, org: s.org, reasons: [] }));
+        if (matches.length) {
+          reply.matches = matches;
+          reply.disclaimer = true;
+        }
+      }
+      return reply;
+    },
+    [ensureServices]
+  );
+
   const send = useCallback(
     async (text) => {
       const trimmed = (text || "").trim();
       if (!trimmed) return;
-      setMessages((prev) => [...prev, { id: uid(), role: "user", text: trimmed }]);
+      const userMsg = { id: uid(), role: "user", text: trimmed };
+      let history = [];
+      setMessages((prev) => {
+        history = [...prev, userMsg];
+        return history;
+      });
       setDraft("");
       setTyping(true);
-      const delay = 500 + Math.random() * 400;
-      const [reply] = await Promise.all([buildReply(trimmed), wait(delay)]);
+      let reply = null;
+      try {
+        reply = await buildLlmReply(history);
+      } catch {
+        reply = null;
+      }
+      if (!reply) {
+        const delay = 500 + Math.random() * 400;
+        [reply] = await Promise.all([buildReply(trimmed), wait(delay)]);
+      }
       setTyping(false);
       setMessages((prev) => [...prev, { id: uid(), role: "assistant", ...reply }]);
     },
-    [buildReply]
+    [buildLlmReply, buildReply]
   );
 
   const handleSuggestion = useCallback((text) => send(text), [send]);

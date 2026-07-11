@@ -29,6 +29,7 @@ export const api = {
   submitStage: (id, payload) => post(`/applications/${id}/stage`, payload),
 
   aiMatch: (payload) => post("/ai/match", payload),
+  aiChat: (messages) => post("/ai/chat", { messages }),
   integrations: () => request("/integrations"),
   notifications: () => request("/notifications"),
 };

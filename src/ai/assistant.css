@@ -131,7 +131,7 @@
   font-size: 14px;
   line-height: 1.5;
 }
-.ai-bubble p { margin: 0; }
+.ai-bubble p { margin: 0; white-space: pre-wrap; }
 .ai-bubble p + * { margin-top: 10px; }
 
 .ai-msg-user .ai-bubble {
