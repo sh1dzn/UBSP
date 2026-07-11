@@ -1,0 +1,279 @@
+/* ЕППБ — Навигатор (AI-помощник). Классы с префиксом ai-. */
+
+/* ---------- плавающая кнопка ---------- */
+.ai-fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 260;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: var(--ink-2);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-lift);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.ai-fab:hover { transform: translateY(-2px); }
+.ai-fab:active { transform: translateY(0); }
+
+.ai-fab-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 0 2px var(--ink-2);
+}
+
+/* ---------- панель ---------- */
+.ai-panel {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 260;
+  width: 400px;
+  max-width: calc(100vw - 32px);
+  height: min(640px, calc(100vh - 40px));
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: var(--shadow-lift);
+  animation: ai-panel-in 0.2s ease;
+}
+
+@keyframes ai-panel-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (max-width: 520px) {
+  .ai-panel {
+    right: 0;
+    bottom: 0;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+}
+
+/* ---------- шапка панели ---------- */
+.ai-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 16px 14px;
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
+.ai-head-title { min-width: 0; }
+.ai-head-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.ai-head-sub {
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.ai-head-actions { display: flex; gap: 4px; flex: none; }
+
+.ai-icon-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.ai-icon-btn:hover { background: var(--sky-soft); color: var(--sky-deep); }
+
+/* ---------- лента сообщений ---------- */
+.ai-feed {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--paper);
+}
+
+.ai-msg { display: flex; }
+.ai-msg-user { justify-content: flex-end; }
+.ai-msg-assistant { justify-content: flex-start; }
+
+.ai-bubble {
+  max-width: 88%;
+  border-radius: var(--r-lg);
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.ai-bubble p { margin: 0; }
+.ai-bubble p + * { margin-top: 10px; }
+
+.ai-msg-user .ai-bubble {
+  background: var(--sky-soft);
+  color: var(--ink);
+  border-bottom-right-radius: 4px;
+}
+.ai-msg-assistant .ai-bubble {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-bottom-left-radius: 4px;
+}
+
+/* ---------- чипы-подсказки и CTA ---------- */
+.ai-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.ai-chip {
+  border: 1px solid var(--line);
+  cursor: pointer;
+  font-size: 12.5px;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.ai-chip:hover { background: var(--sky-soft); border-color: var(--sky-soft); color: var(--sky-deep); }
+
+.ai-ctas { margin-top: 10px; flex-wrap: wrap; }
+
+/* ---------- советы (помощь с заявкой) ---------- */
+.ai-tips {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ai-tips li { font-size: 13.5px; }
+
+/* ---------- карточки-результаты подбора ---------- */
+.ai-matches {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+.ai-match-card {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 12px;
+  background: var(--paper);
+}
+.ai-match-title { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+.ai-match-org { margin-top: 2px; }
+.ai-match-reasons {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 12.5px;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.ai-match-actions { margin-top: 10px; }
+
+/* ---------- дисклеймер ---------- */
+.ai-disclaimer {
+  margin-top: 10px;
+  font-size: 11.5px;
+  color: var(--faint);
+  line-height: 1.4;
+}
+
+/* ---------- «печатает…» ---------- */
+.ai-typing {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 14px;
+}
+.ai-typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--faint);
+  animation: ai-typing-bounce 1.1s infinite ease-in-out;
+}
+.ai-typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.ai-typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes ai-typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-3px); opacity: 1; }
+}
+
+/* ---------- зона ввода ---------- */
+.ai-input-row {
+  flex: none;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--line);
+  background: var(--card);
+}
+
+.ai-textarea {
+  flex: 1;
+  resize: none;
+  max-height: 140px;
+  min-height: 40px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.ai-textarea:focus {
+  outline: none;
+  border-color: var(--sky);
+  box-shadow: 0 0 0 3px var(--sky-soft);
+  background: var(--card);
+}
+
+.ai-send {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r);
+  border: 1px solid var(--sky);
+  background: var(--sky);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+.ai-send:hover { background: var(--sky-deep); border-color: var(--sky-deep); }
+.ai-send:disabled { opacity: 0.45; cursor: not-allowed; }

@@ -1,30 +1,56 @@
-# ÖRKEN — MVP единого портала поддержки бизнеса
+# ЕППБ — Единый портал поддержки бизнеса (MVP)
 
-Demo-ready frontend prototype based on the supplied competition specification.
+Конкурсный MVP цифровой платформы группы АО «НУХ «Байтерек»: единая точка входа к мерам поддержки бизнеса с универсальным no-code конструктором услуг.
 
-## Run
+## Запуск
 
 ```bash
 npm install
-npm run dev
+npm run dev        # http://localhost:3000
 ```
 
-Production check: `npm run build`.
+Продакшн: `npm run build && npm run start`. Фронт и бэк — одно Next.js-приложение (App Router + route handlers), внешних сервисов и БД не требуется: состояние демо живёт в памяти процесса.
 
-## Demo routes
+## Ключевая идея архитектуры
 
-- `/#home` — portal landing page and AI selection entry point
-- `/#catalog` — support-measure catalog and filters
-- `/#service-wagons` — complex service card
-- `/#apply` — four-step branching application with mock eGov/EDS/BPM behavior
-- `/#cabinet` — applications, statuses, notifications and documents
-- `/#map` — interactive financed-project map and filters
-- `/#reports` — reports, dashboards and embedded-resource catalog
-- `/#tools` — calculators, templates and business materials
-- `/#admin` — no-code service/form constructor, rules, calculations, preview and publish
+**Услуга = схема, а не код.** Каждая мера поддержки описана JSON-схемой (Service Definition): карточка, этапы, шаги, поля, условия видимости, формулы расчёта, правила соответствия, справочники, документы.
 
-## Architecture approach
+- `src/engine/FormRunner.jsx` — универсальный рендерер: проигрывает любую услугу из её схемы (ветвление, живые расчёты, предзаполнение из реестра по БИН, загрузка и подписание документов, черновики);
+- `/admin` — no-code конструктор: редактирует те же схемы с живым предпросмотром и публикует их через API — услуга сразу появляется в каталоге;
+- AI-навигатор и проверка соответствия работают поверх тех же схем.
 
-The MVP models the portal as a presentation/orchestration layer. Service definitions, steps, fields, conditions and calculations belong to a configurable service schema; the constructor represents the authoring surface for that schema, while the application renderer represents the client surface. Mock integrations stand in for eGov IDP, EDS, the Holding integration bus and subsidiary BPM systems. In production these boundaries would be backed by versioned APIs and events, allowing 70+ services to reuse the same renderer, rules engine and integration adapters without hard-coded forms.
+Обе контрольные услуги («Приобретение вагонов в лизинг» — двухэтапная, «Агробизнес: животноводство») собраны как схемы в `src/data/seedServices.js` и редактируемы конструктором. Масштабирование на 70+ мер — добавление схем, а не разработка форм.
 
-The current build is intentionally a self-contained frontend prototype: demo state is in memory and no personal information is transmitted.
+## Разделы
+
+| Маршрут | Что показывает |
+| --- | --- |
+| `/` | Главная: подбор меры, маршрут предпринимателя, направления поддержки |
+| `/catalog` | Каталог мер с фильтрами |
+| `/service/[id]` | Карточка услуги (этапы, условия, документы, FAQ) |
+| `/apply/[id]` | Пошаговая подача заявки (FormRunner + мок eGov/ЭЦП) |
+| `/cabinet` | Личный кабинет: заявки, статусы, таймлайн, документы, уведомления, досдача этапа 2 |
+| `/map` | Интерактивная карта профинансированных проектов |
+| `/reports` | Каталог аналитики и отчётности дочерних организаций |
+| `/tools` | Калькуляторы, шаблоны, гайды, чек-листы |
+| `/admin` | Конструктор услуг, реестр заявок, статус интеграций |
+
+## Имитация интеграций
+
+Реальные интеграции на этапе конкурса не требуются — готовность показана моками: eGov IDP (вход), ГБД ЮЛ (проверка БИН → детерминированная карточка компании), НУЦ ЭЦП (подписание документов), интеграционная шина и BPM дочерних организаций (маршрутизация заявки, симуляция решений кнопкой в кабинете), журнал событий шины в админ-кабинете.
+
+## AI-компонент («Навигатор»)
+
+Локальный детерминированный помощник поверх схем конструктора: подбор меры по описанию задачи (`POST /api/ai/match` — скоринг схем), объяснение условий простым языком (генерация из card/rules схемы), советы при заполнении, а в конструкторе — генерация черновика структуры услуги по текстовому описанию.
+
+## Структура кода
+
+```
+app/                 страницы-обёртки и API route handlers
+server/store.js      состояние и доменная логика (in-memory)
+src/engine/          формулы, условия, валидация, FormRunner
+src/data/            схемы услуг, справочники, проекты, аналитика, инструменты
+src/pages/           публичные страницы, кабинет, админ
+src/ai/              навигатор
+src/shell, styles/   каркас и дизайн-система
+```

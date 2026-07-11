@@ -1,0 +1,438 @@
+/* ЕППБ — Cabinet / Apply. Префикс cab-. Использует токены и классы base.css. */
+
+.cab-page {
+  padding: 32px 0 64px;
+}
+
+/* ---------- eGov gate (Apply) ---------- */
+.cab-gate-wrap {
+  min-height: calc(100vh - 64px);
+  display: flex;
+  align-items: center;
+  padding: 48px 0;
+}
+.cab-gate-card {
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px 32px;
+}
+.cab-gate-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sky-soft);
+  color: var(--sky-deep);
+  margin-bottom: 4px;
+}
+.cab-gate-title {
+  font-size: 22px;
+  margin: 2px 0 4px;
+}
+.cab-gate-btn {
+  width: 100%;
+  margin-top: 12px;
+}
+.cab-spin {
+  animation: cab-spin 0.9s linear infinite;
+}
+@keyframes cab-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- Apply: header ---------- */
+.cab-apply-head {
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cab-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  width: fit-content;
+}
+.cab-back-link:hover {
+  color: var(--sky);
+  text-decoration: none;
+}
+.cab-apply-head h1 {
+  font-size: 28px;
+  margin: 2px 0 4px;
+}
+.cab-apply-chips {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cab-submit-error {
+  border: 1px solid var(--red);
+  background: var(--red-soft);
+  color: var(--red);
+  border-radius: var(--r);
+  padding: 12px 16px;
+  font-size: 13.5px;
+  margin-bottom: 18px;
+}
+
+/* ---------- Apply: success screen ---------- */
+.cab-success {
+  max-width: 560px;
+  margin: 16px auto 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 32px;
+}
+.cab-success-icon {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: var(--green-soft);
+  color: var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.cab-success h1 {
+  font-size: 24px;
+  margin: 2px 0;
+}
+.cab-success-number {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.cab-success-rail {
+  width: 100%;
+  margin: 24px 0 8px;
+}
+.cab-success-next {
+  width: 100%;
+  text-align: left;
+  background: var(--paper);
+  border-radius: var(--r);
+  padding: 16px 18px;
+  margin-top: 12px;
+}
+.cab-success-next h3 {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+.cab-success-next ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 13.5px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cab-success-actions {
+  margin-top: 18px;
+  justify-content: center;
+}
+
+/* ---------- Cabinet: header ---------- */
+.cab-head {
+  margin-bottom: 22px;
+}
+.cab-head h1 {
+  font-size: 28px;
+}
+.cab-head-row {
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 6px;
+}
+.cab-user-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+}
+.cab-user-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--sky-soft);
+  color: var(--sky-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.cab-user-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* ---------- tabs ---------- */
+.cab-tabs {
+  gap: 6px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+.cab-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 4px;
+  margin-right: 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+}
+.cab-tab:hover { color: var(--ink); }
+.cab-tab.active {
+  color: var(--ink);
+  border-bottom-color: var(--gold);
+}
+
+/* ---------- layout ---------- */
+.cab-layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .cab-layout { grid-template-columns: 1fr; }
+}
+
+.cab-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cab-app-card {
+  text-align: left;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+}
+.cab-app-card:hover { border-color: var(--faint); }
+.cab-app-card.active {
+  border-color: var(--sky);
+  box-shadow: 0 0 0 3px var(--sky-soft);
+}
+.cab-app-number {
+  font-size: 13px;
+  color: var(--muted);
+}
+.cab-app-title {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.cab-mini-rail {
+  margin-top: 4px;
+}
+.cab-mini-rail .rail-node {
+  padding-top: 10px;
+}
+.cab-mini-rail .rail-node::before {
+  width: 9px;
+  height: 9px;
+}
+.cab-mini-rail::before {
+  top: 4px;
+}
+.cab-mini-rail .rail-node.done::after {
+  top: 4px;
+  left: 9px;
+}
+
+/* ---------- detail ---------- */
+.cab-detail-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cab-detail-number {
+  font-size: 20px;
+  font-weight: 700;
+}
+.cab-detail-service {
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.cab-next-stage {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--gold-soft);
+  border-left: 3px solid var(--gold);
+  border-radius: var(--r);
+  padding: 16px 18px;
+  color: var(--gold-deep);
+}
+.cab-next-stage-body { flex: 1; }
+.cab-next-stage-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.cab-next-stage p { margin-bottom: 10px; }
+
+.cab-block-title {
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+
+/* ---------- timeline (сигнатура маршрута, вертикально) ---------- */
+.cab-timeline {
+  display: flex;
+  flex-direction: column;
+}
+.cab-timeline-item {
+  display: flex;
+  gap: 14px;
+  position: relative;
+  padding-bottom: 20px;
+}
+.cab-timeline-item:last-child { padding-bottom: 0; }
+.cab-timeline-item::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 14px;
+  bottom: -6px;
+  width: 2px;
+  background: var(--line);
+}
+.cab-timeline-item:last-child::before { display: none; }
+.cab-timeline-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 2px solid var(--sky);
+  flex: none;
+  margin-top: 3px;
+}
+.cab-timeline-item:first-child .cab-timeline-dot {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+.cab-timeline-body { flex: 1; min-width: 0; }
+.cab-timeline-title {
+  font-weight: 600;
+  font-size: 13.5px;
+}
+.cab-timeline-date {
+  font-size: 11.5px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.cab-timeline-kind {
+  margin-top: 6px;
+  font-size: 11px;
+}
+
+/* ---------- demo panel ---------- */
+.cab-demo-panel {
+  border: 1px dashed var(--line);
+  border-radius: var(--r-lg);
+  padding: 18px;
+  text-align: center;
+  background: var(--card);
+}
+.cab-demo-caption {
+  margin-bottom: 10px;
+}
+
+/* ---------- notifications ---------- */
+.cab-notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cab-notif-item {
+  display: flex;
+  gap: 10px;
+  text-align: left;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 12px 14px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.cab-notif-item:hover { border-color: var(--faint); }
+.cab-notif-dot-wrap {
+  width: 10px;
+  flex: none;
+  padding-top: 5px;
+}
+.cab-notif-dot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+.cab-notif-body { flex: 1; min-width: 0; }
+.cab-notif-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* ---------- skeletons ---------- */
+.cab-skel-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+}
+@media (max-width: 860px) {
+  .cab-skel-grid { grid-template-columns: 1fr; }
+}
+.cab-skeleton-block {
+  height: 220px;
+  border-radius: var(--r-lg);
+  background: linear-gradient(90deg, var(--card) 25%, var(--paper) 37%, var(--card) 63%);
+  background-size: 400% 100%;
+  animation: cab-shimmer 1.4s ease infinite;
+  border: 1px solid var(--line);
+}
+@keyframes cab-shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cab-skeleton-block { animation: none; }
+  .cab-spin { animation: none; }
+}
+
+.cab-user-info { display: flex; flex-direction: column; line-height: 1.3; }

@@ -1,0 +1,413 @@
+/* ЕППБ — админ-кабинет и конструктор услуг. Префикс adm-. Только токены tokens.css. */
+
+.adm-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--paper);
+}
+
+/* ---------- сайдбар ---------- */
+
+.adm-side {
+  width: 220px;
+  flex: none;
+  background: var(--ink-2);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 12px;
+  gap: 18px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.adm-side-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px 12px;
+  border-bottom: 1px solid var(--line-dark);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.adm-side-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.adm-side-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r);
+  color: #aebac4;
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.adm-side-link:hover { background: rgba(255, 255, 255, 0.06); color: #fff; }
+.adm-side-link.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  box-shadow: inset 3px 0 0 var(--gold);
+}
+
+.adm-side-foot {
+  margin-top: auto;
+  padding: 10px 8px 0;
+  border-top: 1px solid var(--line-dark);
+  color: #7e8ea0;
+}
+
+/* ---------- основная область ---------- */
+
+.adm-main {
+  flex: 1;
+  min-width: 0;
+  padding: 22px 28px 48px;
+}
+
+.adm-topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+.adm-topbar h1 { font-size: 21px; margin-top: 4px; }
+
+.adm-panel-title { font-size: 16px; }
+
+.adm-table-wrap {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 6px 16px;
+  overflow-x: auto;
+}
+
+.adm-cell-title { font-weight: 600; }
+
+.adm-skeleton {
+  height: 220px;
+  border-radius: var(--r-lg);
+  border: 1px dashed var(--line);
+  background: linear-gradient(90deg, var(--card) 25%, var(--paper) 37%, var(--card) 63%);
+  background-size: 400% 100%;
+  animation: adm-shimmer 1.4s ease infinite;
+}
+@keyframes adm-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .adm-skeleton { animation: none; }
+}
+
+.adm-int-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+}
+.adm-int-card { padding: 14px 16px; }
+
+.adm-log {
+  padding: 10px 14px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.adm-log-line { padding: 5px 0; border-bottom: 1px solid var(--line); }
+.adm-log-line:last-child { border-bottom: none; }
+
+/* ═══════════════════════════ КОНСТРУКТОР ═══════════════════════════ */
+
+.adm-ctor {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  background: var(--paper);
+}
+
+.adm-ctor-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 20px;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.adm-ctor-top-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 200px;
+  font-size: 15px;
+}
+.adm-ctor-top .row { gap: 8px; flex-wrap: wrap; }
+
+.adm-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex: none;
+}
+
+.adm-preview-toggle { display: none; }
+
+.adm-ctor-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr) minmax(0, 420px);
+  gap: 0;
+}
+
+/* ---------- дерево ---------- */
+
+.adm-tree {
+  background: var(--paper);
+  border-right: 1px solid var(--line);
+  padding: 14px 10px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.adm-tree-service {
+  text-align: left;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.adm-tree-service.active { border-color: var(--sky); box-shadow: 0 0 0 2px var(--sky-soft); }
+.adm-tree-service-title { font-weight: 600; font-size: 14px; }
+
+.adm-tree-list { display: flex; flex-direction: column; gap: 10px; }
+.adm-tree-stage { display: flex; flex-direction: column; gap: 2px; }
+.adm-tree-step { margin-left: 12px; display: flex; flex-direction: column; gap: 2px; }
+
+.adm-tree-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--ink);
+  border: 1px solid transparent;
+}
+.adm-tree-row:hover { background: var(--card); }
+.adm-tree-row.active { background: var(--sky-soft); border-color: var(--sky); color: var(--sky-deep); }
+
+.adm-tree-row-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.adm-tree-row-step { margin-left: 6px; }
+.adm-tree-row-field { margin-left: 22px; font-size: 12.5px; }
+.adm-tree-type { padding: 1px 6px; font-size: 10.5px; }
+
+.adm-tree-actions {
+  display: none;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+}
+.adm-tree-row:hover .adm-tree-actions,
+.adm-tree-row.active .adm-tree-actions { display: flex; }
+
+.adm-icon-btn {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: pointer;
+  flex: none;
+}
+.adm-icon-btn:hover { border-color: var(--faint); color: var(--ink); }
+.adm-icon-btn.danger:hover { border-color: var(--red); color: var(--red); background: var(--red-soft); }
+
+.adm-tree-add-stage { align-self: flex-start; margin-top: 4px; }
+
+/* ---------- центр ---------- */
+
+.adm-ctor-center {
+  background: var(--card);
+  padding: 22px 26px 60px;
+  overflow-y: auto;
+  border-right: 1px solid var(--line);
+}
+
+.adm-editor-title { font-size: 17px; margin-bottom: 4px; }
+
+.adm-field { display: flex; flex-direction: column; }
+
+.adm-subblock {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  background: var(--paper);
+}
+
+.adm-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--r);
+  background: var(--red-soft);
+  color: var(--red);
+  font-size: 13px;
+}
+
+.adm-faq-row,
+.adm-option-row,
+.adm-rule-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+.adm-rule-row { grid-template-columns: 1fr 1.4fr 180px auto; }
+
+.adm-when-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--paper);
+}
+.adm-when-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ---------- предпросмотр ---------- */
+
+.adm-ctor-preview {
+  background: var(--paper);
+  padding: 16px 18px 40px;
+  overflow-y: auto;
+}
+
+.adm-preview-head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.adm-preview-stages { display: flex; flex-wrap: wrap; gap: 6px; }
+.adm-preview-stages .chip { cursor: pointer; border: none; }
+
+.adm-preview-frame { font-size: 14px; }
+.adm-preview-frame .fr-main { padding: 18px; }
+
+/* ---------- модалки ---------- */
+
+.adm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 24, 33, 0.55);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 6vh 20px;
+  z-index: 300;
+  overflow-y: auto;
+}
+
+.adm-modal {
+  width: 100%;
+  max-width: 520px;
+  padding: 20px 22px 24px;
+}
+.adm-modal.wide { max-width: 720px; }
+
+.adm-modal-head { margin-bottom: 14px; }
+.adm-modal-head h3 { font-size: 16px; }
+
+.adm-modal-body { display: flex; flex-direction: column; gap: 8px; }
+
+.adm-ai-preview h4 { font-size: 15px; margin-bottom: 4px; }
+.adm-ai-step {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 10px 12px;
+}
+.adm-ai-fields { margin-top: 6px; padding-left: 4px; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+
+.adm-error-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.adm-error-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13.5px;
+  color: var(--ink);
+  padding: 8px 10px;
+  background: var(--red-soft);
+  border-radius: 8px;
+}
+.adm-error-list li svg { flex: none; margin-top: 2px; color: var(--red); }
+
+/* ---------- адаптив ---------- */
+
+@media (max-width: 1100px) {
+  .adm-ctor-body { grid-template-columns: 240px minmax(0, 1fr); }
+  .adm-ctor-preview {
+    position: fixed;
+    inset: 0;
+    top: 56px;
+    z-index: 120;
+    display: none;
+    background: var(--paper);
+  }
+  .adm-ctor-preview.open { display: block; }
+  .adm-preview-toggle { display: inline-flex; }
+}
+
+@media (max-width: 900px) {
+  .adm-shell { flex-direction: column; }
+  .adm-side { position: relative; height: auto; width: 100%; flex-direction: row; align-items: center; }
+  .adm-side-nav { flex-direction: row; }
+  .adm-side-foot { display: none; }
+  .adm-main { padding: 16px; }
+  .adm-ctor-body { grid-template-columns: 1fr; }
+  .adm-tree { border-right: none; border-bottom: 1px solid var(--line); max-height: 260px; }
+}

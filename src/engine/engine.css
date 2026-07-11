@@ -1,0 +1,139 @@
+/* ЕППБ FormRunner — стили с префиксом fr-, только токены tokens.css */
+
+.fr-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .fr-layout { grid-template-columns: 1fr; }
+}
+
+.fr-main {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 28px;
+}
+@media (max-width: 640px) {
+  .fr-main { padding: 18px; }
+}
+
+.fr-rail-wrap { margin-bottom: 28px; }
+
+.fr-step-head { margin-bottom: 20px; }
+.fr-step-head h2 { font-size: 20px; margin-bottom: 6px; }
+
+.fr-field { display: flex; flex-direction: column; }
+
+.fr-field-col { min-width: 0; }
+
+/* ---------- деньги / проценты ---------- */
+.fr-money-wrap { position: relative; }
+.fr-money-wrap .input { padding-right: 34px; }
+.fr-money-suffix {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: 13px; pointer-events: none;
+}
+
+/* ---------- radio-карточки ---------- */
+.fr-radio-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px;
+}
+.fr-radio-card {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r);
+  background: var(--card); cursor: pointer; text-align: left;
+  font-family: inherit; font-size: 14px; color: var(--ink);
+  transition: border-color 0.15s, background 0.15s;
+}
+.fr-radio-card:hover { border-color: var(--faint); }
+.fr-radio-card.is-active { border-color: var(--sky); background: var(--sky-soft); }
+.fr-radio-dot {
+  width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--line); flex: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+.fr-radio-card.is-active .fr-radio-dot {
+  border-color: var(--sky); background: var(--sky);
+  box-shadow: inset 0 0 0 3px var(--card);
+}
+
+/* ---------- checkbox ---------- */
+.fr-checkbox-row {
+  display: flex; align-items: flex-start; gap: 10px; cursor: pointer;
+  font-size: 14px; font-weight: 600; color: var(--ink);
+}
+.fr-checkbox-row input { margin-top: 3px; width: 16px; height: 16px; flex: none; }
+
+/* ---------- checklist ---------- */
+.fr-checklist { display: flex; flex-wrap: wrap; gap: 8px; }
+.fr-checklist-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border: 1px solid var(--line); border-radius: var(--r-pill);
+  cursor: pointer; font-size: 13px; color: var(--ink);
+  transition: border-color 0.15s, background 0.15s;
+}
+.fr-checklist-item input { width: 14px; height: 14px; }
+.fr-checklist-item.is-active { border-color: var(--sky); background: var(--sky-soft); }
+
+/* ---------- БИН ---------- */
+.fr-bin-row { display: flex; gap: 8px; }
+.fr-bin-row .input { flex: 1; }
+.fr-company-card {
+  margin-top: 10px; display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r);
+  background: var(--sky-soft); color: var(--sky-deep);
+}
+.fr-company-name { font-weight: 700; font-size: 14px; color: var(--ink); }
+.fr-company-meta { display: flex; gap: 12px; font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+/* ---------- файл ---------- */
+.fr-file-card {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r);
+  background: var(--paper);
+}
+.fr-file-meta { flex: 1; min-width: 120px; }
+.fr-file-name { font-weight: 600; font-size: 13.5px; }
+
+/* ---------- calc ---------- */
+.fr-calc-value {
+  font-family: var(--font-mono); font-size: 26px; font-weight: 700; color: var(--sky-deep);
+  padding: 12px 0 2px;
+}
+
+/* ---------- info ---------- */
+.fr-info-block {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 14px 16px; border-radius: var(--r); background: var(--sky-soft); color: var(--sky-deep);
+  grid-column: span 12;
+}
+.fr-info-block.is-warning { background: var(--amber-soft); color: var(--amber); }
+.fr-info-title { font-weight: 700; font-size: 13.5px; margin-bottom: 2px; color: var(--ink); }
+.fr-info-text { font-size: 13px; color: var(--muted); }
+
+/* ---------- нижняя навигация ---------- */
+.fr-nav { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); }
+
+/* ---------- сайдбар ---------- */
+.fr-sidebar { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 20px; }
+@media (max-width: 900px) { .fr-sidebar { position: static; } }
+
+.fr-sidebar-card { padding: 18px; }
+.fr-sidebar-title { font-size: 13px; font-weight: 700; margin-bottom: 12px; color: var(--ink); }
+
+.fr-check-row {
+  width: 100%; justify-content: flex-start; text-align: left;
+  padding: 8px 12px; font-size: 12.5px; font-weight: 500;
+}
+
+.fr-progress-bar {
+  height: 8px; border-radius: var(--r-pill); background: var(--line); overflow: hidden;
+}
+.fr-progress-fill {
+  height: 100%; background: var(--sky); border-radius: var(--r-pill);
+  transition: width 0.25s ease;
+}
+
+.fr-assistant-btn { width: 100%; }

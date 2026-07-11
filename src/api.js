@@ -1,28 +1,36 @@
 async function request(path, options) {
-  const base = location.port === "5173" ? "http://127.0.0.1:3001/api" : "/api";
-  const response = await fetch(`${base}${path}`, {
+  const response = await fetch(`/api${path}`, {
     headers: { "Content-Type": "application/json" },
     ...options,
   });
-  const body = await response.json();
-  if (!response.ok) throw new Error(body.message || "Backend request failed");
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body.message || "Ошибка запроса к серверу");
   return body;
 }
 
-export const portalApi = {
+const post = (path, payload) =>
+  request(path, { method: "POST", body: JSON.stringify(payload || {}) });
+
+export const api = {
   health: () => request("/health"),
+
   services: () => request("/services"),
+  service: (id) => request(`/services/${id}`),
+  saveService: (schema) => post("/services", schema),
+  publishService: (id) => post(`/services/${id}/publish`),
+
   company: (bin) => request(`/company/${bin}`),
-  eligibility: (payload) =>
-    request("/eligibility", { method: "POST", body: JSON.stringify(payload) }),
-  calculateLease: (payload) =>
-    request("/calculations/lease", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    }),
-  submitApplication: (payload) =>
-    request("/applications", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    }),
+  eligibility: (payload) => post("/eligibility", payload),
+
+  applications: () => request("/applications"),
+  application: (id) => request(`/applications/${id}`),
+  submitApplication: (payload) => post("/applications", payload),
+  advanceApplication: (id) => post(`/applications/${id}/advance`),
+  submitStage: (id, payload) => post(`/applications/${id}/stage`, payload),
+
+  aiMatch: (payload) => post("/ai/match", payload),
+  integrations: () => request("/integrations"),
+  notifications: () => request("/notifications"),
 };
+
+export default api;
