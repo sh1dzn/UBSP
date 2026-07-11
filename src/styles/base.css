@@ -177,3 +177,39 @@ img { max-width: 100%; }
   border: 1px dashed var(--line); border-radius: var(--r-lg); background: var(--card);
 }
 .empty h3 { color: var(--ink); margin-bottom: 6px; }
+
+/* ---------- тёмная лента-hero (общая для страниц) ---------- */
+.dark-band {
+  background:
+    radial-gradient(1100px 500px at 85% -10%, rgba(25, 98, 127, 0.35), transparent 65%),
+    radial-gradient(700px 380px at 12% 115%, rgba(192, 138, 30, 0.12), transparent 60%),
+    var(--ink-2);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.dark-band::after {
+  content: "";
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(900px 480px at 70% 20%, #000 40%, transparent 100%);
+}
+.dark-band > * { position: relative; z-index: 1; }
+
+/* заголовки-дисплеи */
+.display {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.04;
+  font-size: clamp(34px, 4.6vw, 56px);
+}
+.display .accent { color: var(--gold); }
+
+/* пульс маркеров на карте-гербе */
+@keyframes kz-pulse {
+  0% { opacity: 0.9; r: 0.8; }
+  70% { opacity: 0; r: 3.4; }
+  100% { opacity: 0; r: 3.4; }
+}

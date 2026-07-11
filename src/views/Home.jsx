@@ -5,6 +5,8 @@ import {
   MapPin, BarChart3,
 } from "lucide-react";
 import api from "../api.js";
+import { KZ_OUTLINE } from "../data/kzOutline.js";
+import { projects } from "../data/projects.js";
 
 const CATEGORIES = [
   { kind: "Кредитование", label: "Кредитование", desc: "Займы на инвестиции и оборотный капитал", icon: Banknote },
@@ -34,6 +36,13 @@ const ECOSYSTEM = [
   "Банк развития Казахстана", "Фонд «Даму»", "БРК-Лизинг", "КазАгроФинанс",
   "Аграрная кредитная корпорация", "KazakhExport", "Отбасы банк", "QIC",
 ];
+
+function plural(n) {
+  const mod10 = n % 10, mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return "мера доступна";
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "меры доступны";
+  return "мер доступно";
+}
 
 function ServiceCardSkeleton() {
   return (
@@ -79,53 +88,77 @@ export default function Home({ go, notify, openAssistant }) {
 
   return (
     <>
-      <section className="pub-hero">
+      <section className="pub-hero dark-band">
         <div className="container pub-hero-grid">
-          <div>
-            <span className="pub-hero-eyebrow">Группа АО «НУХ «Байтерек»</span>
-            <h1>Одно окно ко всем мерам поддержки бизнеса</h1>
+          <div className="pub-hero-copy">
+            <span className="pub-hero-eyebrow">Группа АО «НУХ «Байтерек» · Единый портал поддержки бизнеса</span>
+            <h1 className="display">
+              <span className="accent">Одно окно</span> ко всем мерам поддержки бизнеса
+            </h1>
             <p className="pub-hero-sub">
-              Кредиты, лизинг, гарантии и субсидии группы «Байтерек» — подбор за минуту,
-              заявка онлайн, статус в одном кабинете.
+              Кредиты, лизинг, гарантии и субсидии восьми институтов развития —
+              подбор за минуту, заявка онлайн, статус в одном кабинете.
             </p>
             <form className="pub-search" onSubmit={handleSearch}>
+              <Search size={18} className="pub-search-icon" />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Опишите, что нужно бизнесу: «купить 20 вагонов в лизинг»..."
+                placeholder="Опишите задачу: «купить 20 вагонов в лизинг»…"
                 aria-label="Опишите задачу бизнеса"
               />
-              <button type="submit" className="btn btn-primary btn-lg">
-                <Search size={16} /> Подобрать
+              <button type="submit" className="pub-search-btn">
+                Подобрать <ArrowRight size={16} />
               </button>
             </form>
             <div className="pub-chips">
+              <span className="pub-chips-label">Например:</span>
               {EXAMPLE_CHIPS.map((text) => (
                 <button key={text} type="button" className="pub-chip-ex" onClick={() => openAssistant(text)}>
                   {text}
                 </button>
               ))}
             </div>
-            <div className="pub-hero-facts mono">
-              70+ мер поддержки · 8 институтов развития · решение от 5 дней
-            </div>
           </div>
 
-          <div className="pub-hero-rail-wrap">
-            <div className="pub-hero-rail-title">Маршрут предпринимателя</div>
-            <div className="rail on-dark">
-              {["Подбор", "Заявка", "Рассмотрение", "Финансирование"].map((title, i) => (
-                <div key={title} className={"rail-node" + (i === 0 ? " done" : i === 1 ? " active" : "")}>
-                  <div className="rail-title">{title}</div>
-                  <div className="pub-hero-rail-desc">
-                    {i === 0 && "Навигатор подбирает меры по описанию задачи"}
-                    {i === 1 && "Короткая форма — данные компании подтягиваются по БИН"}
-                    {i === 2 && "Решение профильного института развития"}
-                    {i === 3 && "Выплата, лизинг или открытие гарантии"}
-                  </div>
-                </div>
+          <div className="pub-hero-map" aria-hidden="true">
+            <svg viewBox="0 0 100 62">
+              <path className="pub-kz-fill" d={KZ_OUTLINE} />
+              {projects.slice(0, 14).map((p, i) => (
+                <g key={p.id} transform={`translate(${p.x}, ${(p.y / 100) * 62})`}>
+                  <circle className="pub-kz-ring" r="0.8" style={{ animationDelay: `${(i % 7) * 0.9}s` }} />
+                  <circle className={"pub-kz-dot" + (i % 4 === 0 ? " gold" : "")} r="0.8" />
+                </g>
               ))}
+            </svg>
+            <div className="pub-hero-map-caption mono">
+              проекты, профинансированные группой «Байтерек»
             </div>
+          </div>
+        </div>
+
+        <div className="container pub-hero-rail-row">
+          <div className="rail on-dark">
+            {[
+              ["Подбор", "Навигатор подбирает меры по описанию задачи"],
+              ["Заявка", "Короткая форма — данные компании подтягиваются по БИН"],
+              ["Рассмотрение", "Решение профильного института развития"],
+              ["Финансирование", "Выплата, лизинг или открытие гарантии"],
+            ].map(([title, desc], i) => (
+              <div key={title} className={"rail-node" + (i === 0 ? " done" : i === 1 ? " active" : "")}>
+                <div className="rail-title">{title}</div>
+                <div className="pub-hero-rail-desc">{desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="pub-hero-facts-band">
+          <div className="container pub-hero-facts mono">
+            <span><b>70+</b> мер поддержки</span>
+            <span><b>8</b> институтов развития</span>
+            <span>решение <b>от 5 дней</b></span>
+            <span>вход через <b>eGov Business</b></span>
           </div>
         </div>
       </section>
@@ -153,7 +186,8 @@ export default function Home({ go, notify, openAssistant }) {
                   <p>{cat.desc}</p>
                 </div>
                 <span className="pub-cat-count">
-                  {services === null ? "…" : <><b>{count || 0}</b> мер доступно</>}
+                  {services === null ? "…" : <><b>{count || 0}</b> {plural(count || 0)}</>}
+                  <ArrowRight size={14} className="pub-cat-arrow" />
                 </span>
               </button>
             );
@@ -224,9 +258,9 @@ export default function Home({ go, notify, openAssistant }) {
         </div>
       </section>
 
-      <section className="pub-eco">
+      <section className="pub-eco dark-band">
         <div className="container">
-          <span className="eyebrow" style={{ marginBottom: 16, display: "inline-flex" }}>Экосистема группы «Байтерек»</span>
+          <span className="eyebrow on-dark" style={{ marginBottom: 16, display: "inline-flex" }}>Экосистема группы «Байтерек»</span>
           <div className="pub-eco-orgs">
             {ECOSYSTEM.map((org) => <span key={org}>{org}</span>)}
           </div>
