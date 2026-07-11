@@ -60,9 +60,13 @@
 .mod-map-svg-wrap { position: relative; width: 100%; }
 .mod-map-svg { width: 100%; height: auto; display: block; overflow: visible; }
 .mod-kz-outline { fill: var(--sky-soft); stroke: var(--sky); stroke-width: 0.4; }
-.mod-marker { cursor: pointer; transition: r 0.15s, opacity 0.25s; }
+.mod-marker {
+  cursor: pointer;
+  transition: r 0.15s, opacity 0.25s;
+  stroke: #fff; stroke-width: 0.25;
+}
 .mod-marker:hover { filter: brightness(0.9); }
-.mod-marker.selected { stroke: var(--gold); stroke-width: 1.4; }
+.mod-marker.selected { stroke: var(--gold); stroke-width: 0.7; }
 .mod-marker.dim { opacity: 0.08; pointer-events: none; }
 .mod-tooltip {
   position: absolute; pointer-events: none; z-index: 5;

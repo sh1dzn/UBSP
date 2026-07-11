@@ -30,9 +30,9 @@ function orgColor(org) {
 }
 
 function markerRadius(amountMln) {
-  if (amountMln >= 5000) return 3.4;
-  if (amountMln >= 1500) return 2.4;
-  return 1.6;
+  if (amountMln >= 5000) return 1.9;
+  if (amountMln >= 1500) return 1.45;
+  return 1.05;
 }
 
 function formatSum(amountMln) {
