@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Production builds
+dist/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Logs and runtime output
+*.log
+logs/
+
+# Coverage and tooling caches
+coverage/
+.cache/
+.vite/
+
+# Local editor and OS files
+.DS_Store
+.idea/
+.vscode/
