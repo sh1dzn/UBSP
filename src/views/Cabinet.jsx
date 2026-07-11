@@ -208,6 +208,11 @@ export default function Cabinet({ go, notify, openAssistant }) {
                 onAdvance={handleAdvance}
                 advancing={advancing}
                 notify={notify}
+                onExplainStatus={() =>
+                  openAssistant(
+                    `Объясни статус заявки ${selected.id} («${selected.statusLabel}») по услуге «${selected.serviceTitle}». Что мне делать дальше?`
+                  )
+                }
               />
             )}
           </div>
@@ -249,7 +254,7 @@ function ApplicationListCard({ app, stages, active, onClick }) {
   );
 }
 
-function ApplicationDetail({ app, onContinue, onAdvance, advancing, notify }) {
+function ApplicationDetail({ app, onContinue, onAdvance, advancing, notify, onExplainStatus }) {
   const timeline = [...(app.timeline || [])].reverse();
   return (
     <div className="stack">
@@ -257,6 +262,9 @@ function ApplicationDetail({ app, onContinue, onAdvance, advancing, notify }) {
         <div className="mono cab-detail-number">{app.id}</div>
         <div className="spread">
           <span className={statusChipClass(app.status)}>{app.statusLabel}</span>
+          <button className="btn btn-sm btn-ghost" onClick={onExplainStatus}>
+            Что значит этот статус?
+          </button>
         </div>
         <div className="cab-detail-service">{app.serviceTitle}</div>
         <div className="muted small row">

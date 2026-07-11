@@ -339,6 +339,39 @@ function detectCategory(text, kind) {
   return byKind[kind] || "finance";
 }
 
+/* Схема от LLM: дозаполняем обязательные поля до формата конструктора */
+function normalizeAiSchema(schema) {
+  const slug = (schema.title || "новая услуга")
+    .toLowerCase().replace(/[^a-zа-яё0-9]+/gi, "-").replace(/^-+|-+$/g, "").slice(0, 40);
+  return {
+    id: schema.id || slug,
+    org: schema.org || "Фонд «Даму»",
+    orgShort: schema.orgShort || schema.org || "Даму",
+    kind: schema.kind || "Кредитование",
+    category: schema.category || "finance",
+    audience: schema.audience || ["ТОО", "ИП"],
+    tags: schema.tags || [],
+    status: "draft",
+    complexity: schema.complexity || (schema.stages && schema.stages.length > 1 ? "complex" : "simple"),
+    card: { benefits: [], conditions: [], documents: [], faq: [], ...(schema.card || {}) },
+    rules: schema.rules || [],
+    ...schema,
+    title: schema.title || "Новая услуга",
+    summary: schema.summary || "",
+    stages: (schema.stages || []).map((st, i) => ({
+      id: st.id || `stage-${i + 1}`,
+      title: st.title || `Этап ${i + 1}`,
+      description: st.description || "",
+      steps: (st.steps || []).map((step, j) => ({
+        id: step.id || `step-${i + 1}-${j + 1}`,
+        title: step.title || `Шаг ${j + 1}`,
+        hint: step.hint || "",
+        fields: step.fields || [],
+      })),
+    })),
+  };
+}
+
 function buildAiDraft(rawText) {
   const text = String(rawText || "").trim();
   const lower = text.toLowerCase();
@@ -613,6 +646,8 @@ export default function Constructor({ service, onBack, notify, openAssistant }) 
   const [previewStageId, setPreviewStageId] = useState(service.stages?.[0]?.id || null);
   const [aiOpen, setAiOpen] = useState(false);
   const [aiText, setAiText] = useState("");
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiSource, setAiSource] = useState(null); // "llm" | "local"
   const [aiDraftPreview, setAiDraftPreview] = useState(null);
   const [publishErrors, setPublishErrors] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -1002,7 +1037,26 @@ export default function Constructor({ service, onBack, notify, openAssistant }) 
           text={aiText}
           setText={setAiText}
           preview={aiDraftPreview}
-          onGenerate={() => setAiDraftPreview(buildAiDraft(aiText))}
+          generating={aiGenerating}
+          source={aiSource}
+          onGenerate={async () => {
+            setAiGenerating(true);
+            try {
+              const res = await api.aiSchema(aiText);
+              if (res && res.schema && !res.fallback) {
+                setAiSource("llm");
+                setAiDraftPreview(normalizeAiSchema(res.schema));
+              } else {
+                setAiSource("local");
+                setAiDraftPreview(buildAiDraft(aiText));
+              }
+            } catch {
+              setAiSource("local");
+              setAiDraftPreview(buildAiDraft(aiText));
+            } finally {
+              setAiGenerating(false);
+            }
+          }}
           onApply={applyAiDraft}
           onClose={() => {
             setAiOpen(false);
@@ -1805,12 +1859,13 @@ function ModalShell({ title, onClose, children, wide }) {
   );
 }
 
-function AiModal({ text, setText, preview, onGenerate, onApply, onClose }) {
+function AiModal({ text, setText, preview, generating, source, onGenerate, onApply, onClose }) {
   return (
     <ModalShell title="Собрать черновик по описанию" onClose={onClose} wide>
       <p className="muted small">
         Опишите услугу своими словами: назначение, сумму, срок, документы, условия («если …») и вопросы
-        к заявителю. Разбор — локальный, без внешних сервисов; результат нужно проверить и уточнить.
+        к заявителю. При настроенном ИИ структура собирается языковой моделью, иначе — локальным разбором.
+        Результат нужно проверить и уточнить.
       </p>
       <textarea
         className="textarea"
@@ -1820,9 +1875,14 @@ function AiModal({ text, setText, preview, onGenerate, onApply, onClose }) {
         onChange={(e) => setText(e.target.value)}
       />
       <div className="row" style={{ marginTop: 10 }}>
-        <button className="btn btn-primary" onClick={onGenerate} disabled={!text.trim()}>
-          <Sparkles size={15} /> Сгенерировать структуру
+        <button className="btn btn-primary" onClick={onGenerate} disabled={!text.trim() || generating}>
+          <Sparkles size={15} /> {generating ? "Собираем структуру…" : "Сгенерировать структуру"}
         </button>
+        {source ? (
+          <span className="chip chip-line">
+            {source === "llm" ? "собрано ИИ-моделью" : "локальный разбор (без ИИ-ключа)"}
+          </span>
+        ) : null}
       </div>
 
       {preview && (

@@ -75,6 +75,7 @@ ${JSON.stringify(apps, null, 1)}
 - Опирайся ТОЛЬКО на данные схем выше. Не выдумывай ставки, суммы и условия. Если данных нет — честно скажи и предложи раздел портала или контакт-центр 1408.
 - Помогаешь: подобрать меру под задачу, объяснить условия простым языком, посчитать прикидку (аванс = собственное участие / стоимость; аннуитет считай честно), разобраться с шагом заявки, объяснить статус в кабинете, подсказать администратору про конструктор.
 - Если рекомендуешь услуги — в САМОМ КОНЦЕ ответа добавь отдельной строкой: ACTIONS: {"services":["id1","id2"]} (1–3 самых подходящих id из списка выше). Не упоминай эту строку в тексте.
+- Если пользователь назвал КОНКРЕТНЫЕ параметры задачи (количество, цены, суммы, срок, тип техники/скота) и они соответствуют полям первого этапа услуги — добавь в ACTIONS ещё "apply": {"serviceId":"...","answers":{"fieldId":значение,...}} с ТОЧНЫМИ id полей из схемы этой услуги (числа — числами, значения select/radio — их value). Заполняй только то, что пользователь явно сказал.
 - Не давай обещаний об одобрении: решение принимает дочерняя организация. Это демонстрационный MVP.`;
 }
 
@@ -119,17 +120,34 @@ export async function POST(request) {
 
     let text = content.trim();
     let services = [];
+    let apply = null;
     const actions = text.match(/ACTIONS:\s*(\{[\s\S]*?\})\s*$/);
     if (actions) {
       try {
-        services = (JSON.parse(actions[1]).services || []).slice(0, 3);
+        const parsed = JSON.parse(actions[1]);
+        services = (parsed.services || []).slice(0, 3);
+        if (parsed.apply && parsed.apply.serviceId && parsed.apply.answers) {
+          // фильтруем ответы по реальным полям схемы — модель не может выдумать поля
+          const svc = listServices().find((x) => x.id === parsed.apply.serviceId);
+          if (svc) {
+            const validIds = new Set(
+              (svc.stages || []).flatMap((st) => (st.steps || []).flatMap((step) => (step.fields || []).map((f) => f.id)))
+            );
+            const answers = Object.fromEntries(
+              Object.entries(parsed.apply.answers).filter(([k]) => validIds.has(k))
+            );
+            if (Object.keys(answers).length) {
+              apply = { serviceId: svc.id, stageId: svc.stages[0].id, answers };
+            }
+          }
+        }
       } catch {
         // некорректный JSON от модели — просто показываем текст
       }
       text = text.slice(0, actions.index).trim();
     }
 
-    return Response.json({ text, services, model: data.model || MODEL });
+    return Response.json({ text, services, apply, model: data.model || MODEL });
   } catch (e) {
     console.error("OpenRouter request failed:", e.message);
     return Response.json({ fallback: true, error: e.message });

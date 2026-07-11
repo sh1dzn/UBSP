@@ -275,9 +275,31 @@ export default function Assistant({ go, open, prompt, onClose, onOpen }) {
     [ensureServices, closeAndGo]
   );
 
+  const STATUS_GLOSSARY = {
+    "подана": "Заявка принята порталом, подписана ЭЦП и передана через интеграционную шину в профильную организацию.",
+    "на рассмотрении": "Заявку изучает профильная дочерняя организация в своей BPM-системе. Ничего делать не нужно — при вопросах менеджер запросит уточнения.",
+    "требуются уточнения": "Менеджеру не хватает данных или документов. Откройте заявку в кабинете — в таймлайне написано, что именно нужно дослать.",
+    "этап одобрен": "Первичное решение положительное. Если у услуги есть следующий этап, в кабинете появится кнопка «Продолжить оформление» — заполните расширенные данные.",
+    "одобрено": "Финальное решение принято, готовится договор. Организация свяжется с вами по контактам из заявки.",
+  };
+
   const buildReply = useCallback(
     async (rawText) => {
       const lower = rawText.toLowerCase();
+
+      if (/статус/.test(lower)) {
+        const hit = Object.entries(STATUS_GLOSSARY).find(([k]) => lower.includes(k));
+        if (hit) {
+          return {
+            text: `«${hit[0][0].toUpperCase()}${hit[0].slice(1)}» — ${hit[1]}`,
+            chips: [{ label: "Открыть кабинет", onClick: () => closeAndGo("/cabinet") }],
+          };
+        }
+        return {
+          text: "Статусы заявки идут по цепочке: подана → на рассмотрении → (требуются уточнения) → этап одобрен → одобрено. Спросите про конкретный статус — объясню, что делать.",
+          chips: [{ label: "Открыть кабинет", onClick: () => closeAndGo("/cabinet") }],
+        };
+      }
 
       if (APPLY_HELP_HINT.test(lower) || (/шаг/.test(lower) && /заявк/.test(lower))) {
         return { text: "Вот пара конкретных советов по этому шагу:", tips: buildApplyHelpTips(rawText) };
@@ -314,6 +336,9 @@ export default function Assistant({ go, open, prompt, onClose, onOpen }) {
       if (!res || res.fallback || !res.text) return null;
 
       const reply = { text: res.text.replace(/\*\*/g, ""), llm: true };
+      if (res.apply && res.apply.serviceId) {
+        reply.apply = res.apply;
+      }
       if (res.services && res.services.length) {
         const services = await ensureServices();
         const byId = new Map(services.map((s) => [s.id, s]));
@@ -534,6 +559,22 @@ export default function Assistant({ go, open, prompt, onClose, onOpen }) {
                 </div>
               ) : null}
 
+              {m.apply ? (
+                <button
+                  className="btn btn-gold ai-apply-btn"
+                  onClick={() => {
+                    try {
+                      const key = `eppb-draft-${m.apply.serviceId}-${m.apply.stageId}`;
+                      const cur = JSON.parse(window.localStorage.getItem(key) || "{}");
+                      window.localStorage.setItem(key, JSON.stringify({ ...cur, ...m.apply.answers }));
+                    } catch {}
+                    onClose();
+                    go(`/apply/${m.apply.serviceId}`);
+                  }}
+                >
+                  Открыть заявку с моими данными →
+                </button>
+              ) : null}
               {m.ctas?.length ? (
                 <div className="row ai-ctas">
                   {m.ctas.map((c, i) => (

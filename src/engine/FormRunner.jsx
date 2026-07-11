@@ -90,6 +90,8 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
   const [companyInfo, setCompanyInfo] = useState({});
   const [companyAgeMonths, setCompanyAgeMonths] = useState(answers.companyAgeMonths);
   const [binLoading, setBinLoading] = useState({});
+  const [review, setReview] = useState(null);       // результат ИИ-предпроверки
+  const [reviewing, setReviewing] = useState(false);
   const [hasDraft, setHasDraft] = useState(() => !!loadDraft(service.id, stage.id));
   const formRef = useRef(null);
 
@@ -352,6 +354,43 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
           <div className="fr-progress-bar">
             <div className="fr-progress-fill" style={{ width: `${fillPercent}%` }} />
           </div>
+        </div>
+
+        <div className="card fr-sidebar-card">
+          <div className="fr-sidebar-title">Предпроверка заявки</div>
+          <p className="fr-review-hint">
+            ИИ сверит ответы с условиями программы до отправки — меньше шансов получить запрос уточнений.
+          </p>
+          <button
+            type="button"
+            className="btn fr-review-btn"
+            disabled={reviewing}
+            onClick={async () => {
+              setReviewing(true);
+              try {
+                const res = await api.aiReview({ serviceId: service.id, stageId: stage.id, answers });
+                setReview(res);
+              } catch {
+                setReview({ summary: "Проверка сейчас недоступна — попробуйте позже.", issues: [], ok: false });
+              } finally {
+                setReviewing(false);
+              }
+            }}
+          >
+            {reviewing ? "Проверяем…" : "Проверить заявку с ИИ"}
+          </button>
+          {review ? (
+            <div className={"fr-review-result" + (review.ok ? " ok" : "")}>
+              <p>{review.summary}</p>
+              {review.issues?.length ? (
+                <ul>
+                  {review.issues.slice(0, 6).map((issue, i) => (
+                    <li key={i} className={issue.level}>{issue.text}</li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          ) : null}
         </div>
 
         {onAskAssistant ? (

@@ -277,3 +277,5 @@
 }
 .ai-send:hover { background: var(--sky-deep); border-color: var(--sky-deep); }
 .ai-send:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.ai-apply-btn { margin-top: 10px; width: 100%; justify-content: center; }

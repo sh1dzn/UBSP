@@ -30,6 +30,8 @@ export const api = {
 
   aiMatch: (payload) => post("/ai/match", payload),
   aiChat: (messages) => post("/ai/chat", { messages }),
+  aiReview: (payload) => post("/ai/review", payload),
+  aiSchema: (description) => post("/ai/schema", { description }),
   integrations: () => request("/integrations"),
   notifications: () => request("/notifications"),
 };
