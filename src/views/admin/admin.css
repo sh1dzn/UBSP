@@ -367,6 +367,19 @@
 .adm-preview-frame .fr-sidebar {
   position: static;
 }
+.adm-preview-frame .fr-main,
+.adm-preview-frame .fr-sidebar,
+.adm-preview-frame .fr-nav,
+.adm-preview-frame .fr-nav.spread {
+  min-width: 0;
+  max-width: 100%;
+}
+.adm-preview-frame .fr-nav.spread {
+  flex-wrap: wrap;
+}
+.adm-preview-frame .fr-nav.spread > * {
+  min-width: 0;
+}
 .adm-preview-frame .fr-main { padding: 18px; }
 
 /* ---------- модалки ---------- */
