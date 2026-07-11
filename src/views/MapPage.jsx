@@ -258,7 +258,7 @@ export default function MapPage({ notify }) {
 
           <div className="mod-regions card">
             <span className="eyebrow">Распределение по регионам</span>
-            <h2 style={{ fontSize: 18, margin: "8px 0 16px" }}>Топ-8 регионов по числу проектов</h2>
+            <h2 className="section-title" style={{ margin: "8px 0 16px" }}>Топ-8 регионов по числу проектов</h2>
             {regionCounts.map((r) => (
               <div key={r.value} className={"mod-region-bar-row" + (region === r.value ? " active" : "")}>
                 <button type="button" onClick={() => setRegion((cur) => cur === r.value ? "" : r.value)}>

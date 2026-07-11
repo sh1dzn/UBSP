@@ -275,3 +275,6 @@ img { max-width: 100%; }
 @media (max-width: 640px) {
   .page-hero-inner { padding: 40px 20px 22px; }
 }
+
+/* единый масштаб заголовков секций */
+.section-title { font-size: 22px; letter-spacing: -0.02em; }

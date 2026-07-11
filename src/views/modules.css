@@ -201,3 +201,5 @@
 }
 .page-hero .mod-hero-stats.on-dark .mod-stat { color: rgba(255, 255, 255, 0.8); font-size: 13px; }
 .page-hero .mod-hero-stats.on-dark .mod-stat b { color: #fff; }
+
+.mod-section-head h2 { font-size: 22px; letter-spacing: -0.02em; }

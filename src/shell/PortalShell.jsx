@@ -40,21 +40,6 @@ export default function PortalShell({ children }) {
     <PortalContext.Provider value={{ notify, openAssistant }}>
       <div className="app-shell">
         <header className={"site-header" + (isHome ? " over-hero" : "")}>
-          <div className="site-topbar">
-            <div className="container site-topbar-inner">
-              <span className="topbar-note">Официальный сервис группы АО «НУХ «Байтерек»</span>
-              <div className="topbar-right">
-                <span className="topbar-langs" aria-label="Язык">
-                  <button type="button">Қаз</button>
-                  <button type="button" className="active">Рус</button>
-                  <button type="button">Eng</button>
-                </span>
-                <span className="topbar-phone">
-                  <Phone size={12} /> <b className="mono">1408</b> контакт-центр
-                </span>
-              </div>
-            </div>
-          </div>
           <div className="container site-header-inner">
             <Link href="/" className="brand" onClick={() => setMenuOpen(false)}>
               <span className="brand-mark">
@@ -137,6 +122,7 @@ export default function PortalShell({ children }) {
             </div>
             <div className="container footer-bottom">
               <span className="mono">EPPB MVP · v2026.07</span>
+              <span className="footer-phone"><Phone size={12} /> <b className="mono">1408</b> единый контакт-центр</span>
               <span>Единая точка входа к 70+ мерам поддержки</span>
             </div>
           </footer>

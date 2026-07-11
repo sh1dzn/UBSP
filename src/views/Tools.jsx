@@ -164,7 +164,7 @@ export default function Tools({ notify, openAssistant }) {
         <div className="mod-section-head">
           <div>
             <span className="eyebrow">Калькуляторы</span>
-            <h2 style={{ fontSize: 20 }}>Оцените параметры финансирования</h2>
+            <h2 className="section-title">Оцените параметры финансирования</h2>
           </div>
         </div>
         <div className="mod-tool-grid">
@@ -197,7 +197,7 @@ export default function Tools({ notify, openAssistant }) {
         <div className="mod-section-head">
           <div>
             <span className="eyebrow">Шаблоны документов</span>
-            <h2 style={{ fontSize: 20 }}>Готовые формы для заявки</h2>
+            <h2 className="section-title">Готовые формы для заявки</h2>
           </div>
         </div>
         <div className="mod-registry-wrap">
@@ -235,7 +235,7 @@ export default function Tools({ notify, openAssistant }) {
         <div className="mod-section-head">
           <div>
             <span className="eyebrow">Пошаговые гайды</span>
-            <h2 style={{ fontSize: 20 }}>Разберитесь до подачи заявки</h2>
+            <h2 className="section-title">Разберитесь до подачи заявки</h2>
           </div>
         </div>
         <div className="mod-tool-grid">
@@ -247,7 +247,7 @@ export default function Tools({ notify, openAssistant }) {
         <div className="mod-section-head">
           <div>
             <span className="eyebrow">Чек-листы</span>
-            <h2 style={{ fontSize: 20 }}>Проверьте готовность документов</h2>
+            <h2 className="section-title">Проверьте готовность документов</h2>
           </div>
         </div>
         <div className="mod-tool-grid">
