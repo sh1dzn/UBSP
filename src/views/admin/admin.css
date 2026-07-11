@@ -72,6 +72,7 @@
   flex: 1;
   min-width: 0;
   padding: 22px 28px 48px;
+  overflow: hidden;
 }
 
 @media (max-width: 900px) {
@@ -155,8 +156,10 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   width: 100%;
   background: var(--paper);
+  min-width: 0;
 }
 
 .adm-ctor-top {
@@ -284,6 +287,7 @@
   background: var(--card);
   padding: 22px 26px 60px;
   overflow-y: auto;
+  min-width: 0;
   border-right: 1px solid var(--line);
 }
 
@@ -460,6 +464,50 @@
   .adm-main { padding: 16px; }
   .adm-ctor-body { grid-template-columns: 1fr; }
   .adm-tree { border-right: none; border-bottom: 1px solid var(--line); max-height: 260px; }
+}
+
+@media (max-width: 600px) {
+  .adm-side {
+    align-items: stretch;
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .adm-side-brand {
+    padding: 7px 6px;
+    font-size: 12px;
+  }
+  .adm-side-nav { min-width: 0; }
+  .adm-side-link { padding: 8px; font-size: 12px; gap: 6px; }
+
+  .adm-main { padding: 14px 12px 28px; }
+  .adm-topbar { margin-bottom: 16px; }
+  .adm-topbar h1 { font-size: 19px; }
+  .adm-topbar > .row { width: 100%; justify-content: space-between; }
+  .adm-panel > .spread { align-items: stretch; }
+  .adm-panel > .spread > .btn { width: 100%; justify-content: center; }
+  .adm-table-wrap { padding: 4px 8px; margin-inline: -1px; }
+  .adm-table-wrap .registry { min-width: 610px; }
+  .adm-int-grid { grid-template-columns: 1fr; }
+
+  .adm-ctor-top {
+    align-items: stretch;
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .adm-ctor-top-title { order: -1; flex-basis: calc(100% - 42px); }
+  .adm-ctor-top > .btn:first-child { order: -2; }
+  .adm-ctor-top > .row { width: 100%; gap: 6px; }
+  .adm-ctor-top > .row .btn { flex: 1 1 auto; min-width: 0; justify-content: center; }
+  .adm-ctor-top > .row .btn:not(.adm-preview-toggle) { font-size: 0; gap: 0; padding-inline: 10px; }
+  .adm-ctor-top > .row .btn:not(.adm-preview-toggle) svg { margin: 0; }
+  .adm-ctor-center { padding: 18px 14px 42px; }
+  .adm-tree { padding: 10px 8px 14px; max-height: 220px; }
+  .adm-faq-row,
+  .adm-option-row,
+  .adm-rule-row,
+  .adm-when-row { grid-template-columns: 1fr; }
+  .adm-modal-overlay { padding: 12px; }
+  .adm-modal { padding: 16px; }
 }
 /* Management sections */
 .adm-settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
