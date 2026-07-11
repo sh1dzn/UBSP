@@ -181,8 +181,8 @@ img { max-width: 100%; }
 /* ---------- тёмная лента-hero (общая для страниц) ---------- */
 .dark-band {
   background:
-    radial-gradient(1100px 500px at 85% -10%, rgba(25, 98, 127, 0.35), transparent 65%),
-    radial-gradient(700px 380px at 12% 115%, rgba(192, 138, 30, 0.12), transparent 60%),
+    radial-gradient(1100px 500px at 85% -10%, rgba(27, 122, 65, 0.30), transparent 65%),
+    radial-gradient(700px 380px at 12% 115%, rgba(178, 143, 62, 0.12), transparent 60%),
     var(--ink-2);
   color: #fff;
   position: relative;

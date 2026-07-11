@@ -72,8 +72,8 @@
 .pub-search-btn {
   flex: none;
   display: inline-flex; align-items: center; gap: 8px;
-  background: var(--gold);
-  color: #1c1502;
+  background: var(--lime);
+  color: var(--lime-ink);
   border: none;
   border-radius: var(--r-pill);
   padding: 12px 22px;
@@ -81,7 +81,7 @@
   cursor: pointer;
   transition: background 0.15s, transform 0.1s;
 }
-.pub-search-btn:hover { background: #d29b2b; }
+.pub-search-btn:hover { background: #d6f877; }
 .pub-search-btn:active { transform: translateY(1px); }
 
 .pub-chips {
@@ -359,3 +359,149 @@
 .pub-eco .pub-eco-link p { color: #8fa0ae; }
 .pub-eco .pub-eco-link .mono { color: var(--sky-on-dark); }
 .pub-eco .pub-eco-link .muted { color: #7e8ea0; }
+
+/* ================= фото-hero (арт-направление Tandurana) ================= */
+.pub-hero2 {
+  position: relative;
+  min-height: min(92vh, 860px);
+  display: flex;
+  align-items: center;
+  color: #fff;
+  overflow: hidden;
+}
+.pub-hero2-media {
+  position: absolute; inset: 0;
+  background: url("/assets/hero-steppe.jpg") center 35% / cover no-repeat;
+}
+.pub-hero2-media::after {
+  content: "";
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(to bottom, rgba(15, 32, 21, 0.42) 0%, rgba(15, 32, 21, 0.06) 34%, rgba(15, 32, 21, 0.52) 100%),
+    linear-gradient(100deg, rgba(15, 32, 21, 0.55) 0%, rgba(15, 32, 21, 0.12) 55%, transparent 75%);
+}
+.pub-hero2-content {
+  position: relative; z-index: 1;
+  width: 100%;
+  padding-top: 130px;
+  padding-bottom: 56px;
+}
+.pub-hero2 .pub-hero-eyebrow { color: rgba(255, 255, 255, 0.85); }
+.display-xl {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  font-size: clamp(40px, 6vw, 76px);
+  max-width: 900px;
+  margin: 0 0 22px;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.25);
+}
+.pub-hero2-sub {
+  font-size: 17px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.88);
+  max-width: 560px;
+  margin: 0 0 30px;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.3);
+}
+.pub-hero2 .pub-search { box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6); }
+
+.pub-hero2-bottom {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 20px;
+  margin-top: clamp(40px, 9vh, 110px);
+  flex-wrap: wrap;
+}
+.pub-cta-lime {
+  display: inline-flex; align-items: center; gap: 12px;
+  background: var(--lime); color: var(--lime-ink);
+  border: none; border-radius: var(--r-pill);
+  padding: 10px 10px 10px 22px;
+  font-size: 15px; font-weight: 700; font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 14px 34px -12px rgba(0, 0, 0, 0.5);
+}
+.pub-cta-lime:hover { transform: translateY(-2px); }
+.pub-cta-circle {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(15, 32, 21, 0.9); color: var(--lime);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.pub-hero2-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.pub-hero2-tags button {
+  border-radius: var(--r-pill);
+  padding: 10px 18px;
+  font-size: 13.5px; font-weight: 600; font-family: inherit;
+  cursor: pointer;
+  background: rgba(15, 32, 21, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.15s, border-color 0.15s;
+}
+.pub-hero2-tags button:hover { border-color: var(--lime); }
+.pub-hero2-tags button.active { background: var(--lime); border-color: var(--lime); color: var(--lime-ink); }
+
+.pub-facts-strip { border-bottom: 1px solid var(--line); background: var(--card); }
+.pub-facts-strip .pub-hero-facts {
+  border-top: none; margin-top: 0; padding: 14px 24px;
+  color: var(--muted);
+}
+.pub-facts-strip .pub-hero-facts b { color: var(--ink); }
+
+/* ================= редакционная галерея направлений ================= */
+.pub-gallery {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 28px;
+  padding: 72px 24px 30px;
+  align-items: start;
+}
+.pub-gallery-col { display: flex; flex-direction: column; gap: 22px; }
+.pub-gallery-col.offset { margin-top: 54px; }
+.pub-gallery-col.offset2 { margin-top: 96px; }
+
+.pub-gcard { margin: 0; cursor: pointer; }
+.pub-gcard img {
+  width: 100%; aspect-ratio: 3 / 3.6; object-fit: cover;
+  border-radius: var(--r-lg);
+  display: block;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.pub-gcard.tall img { aspect-ratio: 3 / 4.4; }
+.pub-gcard:hover img { transform: translateY(-4px); box-shadow: var(--shadow-lift); }
+.pub-gcard:focus-visible { outline: 2px solid var(--sky); outline-offset: 3px; border-radius: var(--r-lg); }
+.pub-gcard figcaption {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  padding: 12px 2px 0;
+  font-size: 15.5px;
+}
+.pub-gcard figcaption .mono { color: var(--muted); font-size: 13px; }
+.pub-gcard figcaption b { font-weight: 700; }
+
+.pub-gallery-head { padding: 6px 4px 10px; }
+.pub-gallery-head h2 { font-size: 26px; letter-spacing: -0.02em; margin-bottom: 10px; }
+.pub-gallery-head p { color: var(--muted); font-size: 14px; line-height: 1.55; margin-bottom: 16px; }
+
+.pub-gallery-arrows { display: flex; gap: 10px; padding: 2px 2px 0; }
+.pub-arrow-circle {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  cursor: pointer; transition: transform 0.15s, border-color 0.15s;
+}
+.pub-arrow-circle:hover { border-color: var(--faint); transform: translateY(-2px); }
+.pub-arrow-circle.lime { background: var(--lime); border-color: var(--lime); color: var(--lime-ink); }
+.pub-arrow-circle.dark { background: var(--ink-2); border-color: var(--ink-2); color: #fff; }
+.pub-arrow-circle.lg { width: 46px; height: 46px; }
+
+@media (max-width: 1000px) {
+  .pub-gallery { grid-template-columns: repeat(2, 1fr); }
+  .pub-gallery-col.offset2 { margin-top: 0; }
+}
+@media (max-width: 560px) {
+  .pub-gallery { grid-template-columns: 1fr; }
+  .pub-gallery-col.offset { margin-top: 0; }
+  .pub-hero2-content { padding-top: 150px; }
+}

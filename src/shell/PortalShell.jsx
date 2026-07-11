@@ -6,21 +6,6 @@ import { Bot, Menu, Phone, X } from "lucide-react";
 import { PortalContext } from "./portal-context.js";
 import Assistant from "../ai/Assistant.jsx";
 
-/* Знак портала: шанырак — купольный круг с перекрестьем (кульдреуш) */
-function BrandMark() {
-  return (
-    <svg viewBox="0 0 28 28" width="22" height="22" aria-hidden="true">
-      <circle cx="14" cy="14" r="10.5" fill="none" stroke="currentColor" strokeWidth="2.2" />
-      <path
-        d="M6.6 9.8 L21.4 18.2 M21.4 9.8 L6.6 18.2 M14 3.5 L14 24.5"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        opacity="0.85"
-      />
-    </svg>
-  );
-}
-
 const NAV = [
   { path: "/catalog", label: "Меры поддержки" },
   { path: "/map", label: "Карта проектов" },
@@ -49,11 +34,12 @@ export default function PortalShell({ children }) {
   }, []);
 
   const isAdmin = pathname.startsWith("/admin");
+  const isHome = pathname === "/";
 
   return (
     <PortalContext.Provider value={{ notify, openAssistant }}>
       <div className="app-shell">
-        <header className="site-header">
+        <header className={"site-header" + (isHome ? " over-hero" : "")}>
           <div className="site-topbar">
             <div className="container site-topbar-inner">
               <span className="topbar-note">Официальный сервис группы АО «НУХ «Байтерек»</span>
@@ -71,7 +57,9 @@ export default function PortalShell({ children }) {
           </div>
           <div className="container site-header-inner">
             <Link href="/" className="brand" onClick={() => setMenuOpen(false)}>
-              <span className="brand-mark"><BrandMark /></span>
+              <span className="brand-mark">
+                <img src="/assets/baiterek-mark.png" alt="Байтерек" />
+              </span>
               <span className="brand-text">
                 <b>ЕППБ</b>
                 <span>Единый портал поддержки бизнеса</span>
@@ -118,7 +106,9 @@ export default function PortalShell({ children }) {
             <div className="container footer-inner">
               <div>
                 <div className="brand footer-brand">
-                  <span className="brand-mark"><BrandMark /></span>
+                  <span className="brand-mark">
+                    <img src="/assets/baiterek-mark.png" alt="Байтерек" />
+                  </span>
                   <span className="brand-text">
                     <b>ЕППБ</b>
                     <span>Группа АО «НУХ «Байтерек»</span>
