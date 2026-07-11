@@ -2,8 +2,9 @@
 import { useCallback, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bot, Menu, Phone, X } from "lucide-react";
+import { Bot, ChevronDown, LogOut, Menu, Phone, ShieldCheck, UserRound, X } from "lucide-react";
 import { PortalContext } from "./portal-context.js";
+import { AuthContext, useAuthState } from "./auth.js";
 import Assistant from "../ai/Assistant.jsx";
 
 const NAV = [
@@ -21,6 +22,8 @@ export default function PortalShell({ children }) {
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [assistantPrompt, setAssistantPrompt] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const auth = useAuthState();
 
   const notify = useCallback((title, text) => {
     const id = Math.random().toString(36).slice(2);
@@ -37,6 +40,7 @@ export default function PortalShell({ children }) {
   const isHome = pathname === "/";
 
   return (
+    <AuthContext.Provider value={auth}>
     <PortalContext.Provider value={{ notify, openAssistant }}>
       <div className="app-shell">
         <header className={"site-header" + (isHome ? " over-hero" : "")}>
@@ -70,6 +74,41 @@ export default function PortalShell({ children }) {
               </Link>
             </nav>
             <div className="header-actions">
+              {auth.user ? (
+                <div className="user-menu-wrap">
+                  <button
+                    className="user-chip"
+                    onClick={() => setUserMenuOpen((v) => !v)}
+                    aria-expanded={userMenuOpen}
+                  >
+                    <span className="user-chip-icon">
+                      {auth.user.role === "admin" ? <ShieldCheck size={15} /> : <UserRound size={15} />}
+                    </span>
+                    <span className="user-chip-name">{auth.user.name}</span>
+                    <ChevronDown size={14} />
+                  </button>
+                  {userMenuOpen ? (
+                    <div className="user-menu" onMouseLeave={() => setUserMenuOpen(false)}>
+                      <div className="user-menu-head">
+                        <b>{auth.user.name}</b>
+                        <span>{auth.user.role === "admin" ? auth.user.title : `БИН ${auth.user.bin}`}</span>
+                      </div>
+                      {auth.user.role === "admin" ? (
+                        <Link href="/admin" onClick={() => setUserMenuOpen(false)}>Администрирование</Link>
+                      ) : (
+                        <Link href="/cabinet" onClick={() => setUserMenuOpen(false)}>Личный кабинет</Link>
+                      )}
+                      <button
+                        onClick={() => { auth.signOut(); setUserMenuOpen(false); notify("Вы вышли из аккаунта"); router.push("/"); }}
+                      >
+                        <LogOut size={14} /> Выйти
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              ) : (
+                <Link href="/login" className="btn btn-sm login-launch">Войти</Link>
+              )}
               <button className="btn btn-sm assistant-launch" onClick={() => openAssistant()}>
                 <Bot size={16} /> Навигатор
               </button>
@@ -146,5 +185,6 @@ export default function PortalShell({ children }) {
         </div>
       </div>
     </PortalContext.Provider>
+    </AuthContext.Provider>
   );
 }

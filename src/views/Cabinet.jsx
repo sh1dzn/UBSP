@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import api from "../api.js";
 import PageHero from "../shell/PageHero.jsx";
+import { useAuth } from "../shell/auth.js";
 
 const APPLICANT = { name: "ТОО «Demo Trans Logistics»", bin: "123456789012" };
 
@@ -33,6 +34,7 @@ function statusChipClass(status) {
 const KIND_LABEL = { user: "Вы", system: "Система", org: "Организация" };
 
 export default function Cabinet({ go, notify, openAssistant }) {
+  const { user, ready } = useAuth();
   const [applications, setApplications] = useState(null);
   const [notifications, setNotifications] = useState(null);
   const [serviceStages, setServiceStages] = useState({}); // serviceId -> [{id,title}]
@@ -99,6 +101,22 @@ export default function Cabinet({ go, notify, openAssistant }) {
   const unreadCount = (notifications || []).filter((n) => !n.read).length;
 
   const loading = applications === null || notifications === null;
+
+  if (ready && !user) {
+    return (
+      <div className="container">
+        <div className="auth-gate card">
+          <span className="eyebrow">Личный кабинет</span>
+          <h2>Войдите, чтобы видеть свои заявки</h2>
+          <p>Статусы, документы и уведомления доступны после входа через eGov Business.</p>
+          <div className="row">
+            <button className="btn btn-gold btn-lg" onClick={() => go("/login?next=/cabinet")}>Войти</button>
+            <button className="btn" onClick={() => go("/catalog")}>Смотреть каталог</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container cab-page">

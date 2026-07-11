@@ -10,17 +10,17 @@ import {
 } from "lucide-react";
 import api from "../api.js";
 import FormRunner from "../engine/FormRunner.jsx";
+import { useAuth, DEMO_BUSINESS } from "../shell/auth.js";
 
 const APPLICANT = { name: "ТОО «Demo Trans Logistics»", bin: "123456789012" };
-const AUTH_KEY = "eppb-auth";
 
 export default function Apply({ go, route, notify, openAssistant }) {
   const serviceId = route.params?.id;
   const appId = route.query?.app || null;
   const requestedStage = route.query?.stage || null;
 
-  const [authed, setAuthed] = useState(false);
-  const [authChecked, setAuthChecked] = useState(false);
+  const { user, ready, signIn } = useAuth();
+  const authed = !!user;
   const [authing, setAuthing] = useState(false);
 
   const [service, setService] = useState(null);
@@ -30,15 +30,6 @@ export default function Apply({ go, route, notify, openAssistant }) {
 
   const [result, setResult] = useState(null); // успешно отправленная заявка
   const [submitError, setSubmitError] = useState(null);
-
-  useEffect(() => {
-    try {
-      setAuthed(localStorage.getItem(AUTH_KEY) === "1");
-    } catch {
-      setAuthed(false);
-    }
-    setAuthChecked(true);
-  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -75,13 +66,8 @@ export default function Apply({ go, route, notify, openAssistant }) {
   async function handleEgovLogin() {
     setAuthing(true);
     await new Promise((r) => setTimeout(r, 700));
-    try {
-      localStorage.setItem(AUTH_KEY, "1");
-    } catch {
-      /* игнорируем недоступность localStorage */
-    }
     setAuthing(false);
-    setAuthed(true);
+    signIn(DEMO_BUSINESS);
     notify?.("Вы вошли через eGov (мок)", APPLICANT.name);
   }
 
@@ -107,7 +93,7 @@ export default function Apply({ go, route, notify, openAssistant }) {
     }
   }
 
-  if (!authChecked || loading) {
+  if (!ready || loading) {
     return (
       <div className="container cab-page">
         <div className="cab-skeleton-block" style={{ maxWidth: 640, margin: "40px auto" }} />

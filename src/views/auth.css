@@ -1,0 +1,63 @@
+/* Авторизация — префикс auth- */
+.auth-page {
+  min-height: calc(100vh - 300px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 56px 16px 40px;
+}
+.auth-card { width: 100%; max-width: 460px; padding: 30px 30px 26px; }
+.auth-card h1 { font-size: 26px; letter-spacing: -0.02em; margin: 10px 0 6px; }
+.auth-sub { color: var(--muted); font-size: 14px; margin-bottom: 22px; }
+.auth-block { display: flex; flex-direction: column; }
+.auth-block p { font-size: 13px; color: var(--muted); margin: 4px 0 12px; }
+.auth-block-head { display: flex; align-items: center; gap: 8px; color: var(--sky-deep); font-size: 14px; }
+.auth-egov { justify-content: center; }
+.auth-admin-btn { margin-top: 16px; justify-content: center; }
+.auth-hint { font-size: 12px; color: var(--faint); margin-top: 8px; text-align: center; }
+.auth-divider {
+  display: flex; align-items: center; gap: 12px; margin: 20px 0;
+  color: var(--faint); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;
+}
+.auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.auth-note { max-width: 460px; margin-top: 16px; font-size: 12.5px; color: var(--faint); text-align: center; }
+
+/* гейт внутри страниц */
+.auth-gate { max-width: 520px; margin: 60px auto; text-align: center; padding: 36px 28px; }
+.auth-gate h2 { margin-bottom: 8px; }
+.auth-gate p { color: var(--muted); margin-bottom: 20px; }
+.auth-gate .row { justify-content: center; }
+
+/* чип пользователя в шапке */
+.user-menu-wrap { position: relative; }
+.user-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--ink-2); color: #fff; border: 1px solid var(--ink-2);
+  border-radius: var(--r-pill); padding: 8px 12px 8px 8px;
+  font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer;
+  max-width: 240px;
+}
+.user-chip:hover { border-color: var(--lime); }
+.user-chip-icon {
+  width: 24px; height: 24px; border-radius: 50%; flex: none;
+  background: var(--lime); color: var(--lime-ink);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.user-chip-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-menu {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 120;
+  min-width: 240px; background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-lg); box-shadow: var(--shadow-lift); padding: 8px;
+}
+.user-menu-head { padding: 8px 10px 10px; border-bottom: 1px solid var(--line); margin-bottom: 6px; }
+.user-menu-head b { display: block; font-size: 13.5px; }
+.user-menu-head span { font-size: 12px; color: var(--muted); }
+.user-menu a, .user-menu button {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 9px 10px; border-radius: 9px; font-size: 13.5px; font-weight: 500;
+  color: var(--ink); background: none; border: none; cursor: pointer;
+  font-family: inherit; text-decoration: none; text-align: left;
+}
+.user-menu a:hover, .user-menu button:hover { background: var(--sky-soft); text-decoration: none; }
+.user-menu button { color: var(--red); }
+
+.login-launch { border-radius: var(--r-pill); padding: 10px 20px; font-weight: 700; }
+.site-header.over-hero .login-launch { background: var(--lime); border-color: var(--lime); color: var(--lime-ink); }

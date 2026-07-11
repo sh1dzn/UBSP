@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import api from "../../api.js";
 import Constructor from "./Constructor.jsx";
+import { useAuth } from "../../shell/auth.js";
 
 const SECTIONS = [
   { id: "services", label: "Услуги", icon: Boxes },
@@ -94,6 +95,7 @@ function emptyService() {
 }
 
 export default function Admin({ go, route, notify, openAssistant }) {
+  const { user, ready } = useAuth();
   const [section, setSection] = useState("services");
   const [services, setServices] = useState([]);
   const [applications, setApplications] = useState([]);
@@ -153,6 +155,22 @@ export default function Admin({ go, route, notify, openAssistant }) {
           notify={notify}
           openAssistant={openAssistant}
         />
+      </div>
+    );
+  }
+
+  if (ready && (!user || user.role !== "admin")) {
+    return (
+      <div className="container">
+        <div className="auth-gate card">
+          <span className="eyebrow">Административный кабинет</span>
+          <h2>Доступ только для сотрудников Холдинга</h2>
+          <p>Управление услугами, заявками и интеграциями доступно после входа с корпоративной учётной записью.</p>
+          <div className="row">
+            <button className="btn btn-primary btn-lg" onClick={() => go("/login?next=/admin")}>Войти как сотрудник</button>
+            <button className="btn" onClick={() => go("/")}>На главную</button>
+          </div>
+        </div>
       </div>
     );
   }

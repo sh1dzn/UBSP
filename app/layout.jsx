@@ -8,6 +8,7 @@ import "../src/views/cabinet.css";
 import "../src/views/admin/admin.css";
 import "../src/views/modules.css";
 import "../src/ai/assistant.css";
+import "../src/views/auth.css";
 import PortalShell from "../src/shell/PortalShell.jsx";
 
 export const metadata = {
