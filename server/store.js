@@ -429,7 +429,7 @@ export function createApplication({ serviceId, stageId, answers, applicant }) {
 
   pushLog(state, { gateway: "esb", event: `Пакет заявки ${id} передан из ESB в BPM ${service.org}`, appId: id });
   pushLog(state, {
-    gateway: service.org && service.org.toLowerCase().includes("брк") ? "bpm_brk" : "bpm_damu",
+    gateway: service.org && (service.org.toLowerCase().includes("промышленности") || service.org.toLowerCase().includes("брк")) ? "bpm_frp" : "bpm_damu",
     event: `Заявка ${id} зарегистрирована в BPM «${service.org}»`,
     appId: id,
   });
@@ -663,7 +663,7 @@ const GATEWAYS = [
   { id: "eds", name: "НУЦ ЭЦП" },
   { id: "esb", name: "Интеграционная шина" },
   { id: "bpm_damu", name: "BPM Даму" },
-  { id: "bpm_brk", name: "BPM БРК-Лизинг" },
+  { id: "bpm_frp", name: "BPM Фонд развития промышленности" },
   { id: "crm", name: "Единая CRM" },
 ];
 

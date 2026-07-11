@@ -28,7 +28,7 @@ import { dictionaries } from "../../data/dictionaries.js";
 
 const ORG_OPTIONS = [
   { org: "АО «БРК»", orgShort: "БРК" },
-  { org: "БРК-Лизинг", orgShort: "БРК-Лизинг" },
+  { org: "Фонд развития промышленности", orgShort: "ФРП" },
   { org: "АО «КазАгроФинанс»", orgShort: "КазАгроФинанс" },
   { org: "Аграрная кредитная корпорация", orgShort: "АКК" },
   { org: "АО «Даму»", orgShort: "Даму" },
@@ -298,7 +298,7 @@ const KIND_KEYWORDS = [
 ];
 
 const ORG_KEYWORDS = [
-  { org: "БРК-Лизинг", words: ["лизинг", "вагон"] },
+  { org: "Фонд развития промышленности", words: ["лизинг", "вагон"] },
   { org: "АО «KazakhExport»", words: ["экспорт", "страхование экспорт"] },
   { org: "QIC", words: ["страхов"] },
   { org: "АО «КазАгроФинанс»", words: ["агро", "ферм", "скот", "сельск", "апк"] },
