@@ -358,7 +358,22 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
           <button
             type="button"
             className="btn btn-gold fr-assistant-btn"
-            onClick={() => onAskAssistant(currentStep)}
+            onClick={() => {
+              // контекст для навигатора: что за услуга, где пользователь, что не заполнено
+              const visible = currentStep ? collectVisibleFields(currentStep, answers) : [];
+              const empty = visible
+                .filter((f) => f.required && (answers[f.id] === undefined || answers[f.id] === "" || answers[f.id] === null))
+                .map((f) => f.label);
+              const failing = checks.filter((c) => !c.passed).map((c) => c.label);
+              const parts = [
+                `Помоги с заявкой «${service.title}», этап «${stage.title}», шаг «${currentStep?.title || ""}».`,
+                `Заполнено ${fillPercent}% данных.`,
+              ];
+              if (empty.length) parts.push(`Не заполнены обязательные поля: ${empty.join(", ")}.`);
+              if (failing.length) parts.push(`Не выполнены условия: ${failing.join("; ")}.`);
+              parts.push("Подскажи, что и как заполнить.");
+              onAskAssistant({ prompt: parts.join(" ") });
+            }}
           >
             <MessageCircleQuestion size={16} /> Спросить навигатора
           </button>

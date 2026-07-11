@@ -47,7 +47,7 @@ export default function PortalShell({ children }) {
           <div className="container site-header-inner">
             <Link href="/" className="brand" onClick={() => setMenuOpen(false)}>
               <span className="brand-mark">
-                <img src="/assets/baiterek-mark.png" alt="Байтерек" />
+                <img src="/assets/baiterek-mark.webp" alt="Байтерек" />
               </span>
               <span className="brand-text">
                 <b>ЕППБ</b>
@@ -131,7 +131,7 @@ export default function PortalShell({ children }) {
               <div>
                 <div className="brand footer-brand">
                   <span className="brand-mark">
-                    <img src="/assets/baiterek-mark.png" alt="Байтерек" />
+                    <img src="/assets/baiterek-mark.webp" alt="Байтерек" />
                   </span>
                   <span className="brand-text">
                     <b>ЕППБ</b>

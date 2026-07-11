@@ -9,6 +9,8 @@ import api from "../api.js";
  * поверх схем услуг (api.services) + серверный скоринг (api.aiMatch).
  */
 
+const HISTORY_KEY = "eppb-chat-history";
+
 const DISCLAIMER =
   "Навигатор анализирует схемы услуг конструктора — рекомендации не являются решением о финансировании.";
 
@@ -360,10 +362,46 @@ export default function Assistant({ go, open, prompt, onClose, onOpen }) {
   const handleSuggestion = useCallback((text) => send(text), [send]);
 
   const clearChat = useCallback(() => {
+    try { window.localStorage.removeItem(HISTORY_KEY); } catch {}
     setMessages([
       { id: uid(), role: "assistant", text: GREETING, chips: SUGGESTIONS.map((s) => ({ label: s, onClick: () => handleSuggestion(s) })) },
     ]);
   }, [handleSuggestion]);
+
+  /* восстановление истории при первом открытии */
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(HISTORY_KEY);
+      if (raw) {
+        const stored = JSON.parse(raw);
+        if (Array.isArray(stored) && stored.length) {
+          setMessages(stored);
+          setGreeted(true);
+        }
+      }
+    } catch {
+      // повреждённая история — начнём заново
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* автосохранение: только сериализуемые части (без onClick-замыканий) */
+  useEffect(() => {
+    if (!messages.length) return;
+    try {
+      const plain = messages.slice(-40).map((m) => ({
+        id: m.id,
+        role: m.role,
+        text: m.text,
+        matches: m.matches,
+        tips: m.tips,
+        disclaimer: m.disclaimer,
+      }));
+      window.localStorage.setItem(HISTORY_KEY, JSON.stringify(plain));
+    } catch {
+      // хранилище недоступно — история живёт в рамках сессии
+    }
+  }, [messages]);
 
   useEffect(() => {
     if (!open) return;
