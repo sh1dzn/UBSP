@@ -64,5 +64,5 @@
 .site-header.over-hero .login-launch { background: var(--lime); border-color: var(--lime); color: var(--lime-ink); }
 
 @media (max-width: 720px) {
-  .user-menu { position: fixed; left: 12px; right: 12px; top: 66px; min-width: 0; }
+  .user-menu { position: fixed; left: auto; right: 12px; top: 66px; min-width: 0; width: 280px; max-width: calc(100vw - 24px); }
 }
