@@ -193,6 +193,15 @@ function fieldsBefore(draft, stageId, stepId, fieldId) {
   return out;
 }
 
+function fieldsBeforeStep(draft, stageId, stepId) {
+  const out = [];
+  for (const entry of allFieldsFlat(draft)) {
+    if (entry.stageId === stageId && entry.stepId === stepId) break;
+    out.push(entry.field);
+  }
+  return out;
+}
+
 /* ───────────────────────── условия видимости (when) ───────────────────────── */
 
 function emptyCondition() {
@@ -972,11 +981,16 @@ export default function Constructor({ service, onBack, notify, openAssistant }) 
             />
           )}
           {selection.type === "stage" && (
-            <StageEditor stage={draft.stages.find((s) => s.id === selection.stageId)} onPatch={(p) => patchStage(selection.stageId, p)} />
+            <StageEditor
+              stage={draft.stages.find((s) => s.id === selection.stageId)}
+              precedingFields={allFieldsFlat({ ...draft, stages: draft.stages.slice(0, draft.stages.findIndex((s) => s.id === selection.stageId)) }).map((e) => e.field)}
+              onPatch={(p) => patchStage(selection.stageId, p)}
+            />
           )}
           {selection.type === "step" && (
             <StepEditor
               step={draft.stages.find((s) => s.id === selection.stageId)?.steps.find((st) => st.id === selection.stepId)}
+              precedingFields={fieldsBeforeStep(draft, selection.stageId, selection.stepId)}
               onPatch={(p) => patchStep(selection.stageId, selection.stepId, p)}
             />
           )}
@@ -1447,7 +1461,7 @@ function RulesEditor({ rules, onAdd, onPatch, onRemove }) {
   );
 }
 
-function StageEditor({ stage, onPatch }) {
+function StageEditor({ stage, precedingFields, onPatch }) {
   if (!stage) return null;
   return (
     <div className="stack">
@@ -1458,11 +1472,15 @@ function StageEditor({ stage, onPatch }) {
       <Field label="Описание">
         <textarea className="textarea" value={stage.description || ""} onChange={(e) => onPatch({ description: e.target.value })} />
       </Field>
+      <div className="adm-subblock">
+        <p className="muted small">Условие определяет доступность этапа после завершения предыдущего этапа.</p>
+        <WhenEditor field={stage} precedingFields={precedingFields || []} onPatch={onPatch} />
+      </div>
     </div>
   );
 }
 
-function StepEditor({ step, onPatch }) {
+function StepEditor({ step, precedingFields, onPatch }) {
   if (!step) return null;
   return (
     <div className="stack">
@@ -1473,6 +1491,10 @@ function StepEditor({ step, onPatch }) {
       <Field label="Подсказка под заголовком">
         <input className="input" value={step.hint || ""} onChange={(e) => onPatch({ hint: e.target.value })} />
       </Field>
+      <div className="adm-subblock">
+        <p className="muted small">Условие показывает или скрывает весь шаг по уже введённым данным.</p>
+        <WhenEditor field={step} precedingFields={precedingFields || []} onPatch={onPatch} />
+      </div>
     </div>
   );
 }

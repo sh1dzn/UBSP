@@ -52,6 +52,12 @@ export default function MapPage({ notify }) {
   const [selected, setSelected] = useState(null);
   const [hovered, setHovered] = useState(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
+
+  const projectPoint = (p) => ({
+    x: 5 + ((p.lng - 46.4) / (87.4 - 46.4)) * 90,
+    y: 5 + ((55.5 - p.lat) / (55.5 - 40.5)) * 90,
+  });
 
   const filtered = useMemo(() => {
     return projects.filter((p) => {
@@ -182,8 +188,9 @@ export default function MapPage({ notify }) {
                 <path className="mod-kz-outline" d={KZ_OUTLINE} />
                 {projects.map((p) => {
                   const visible = filteredIds.has(p.id);
-                  const cx = p.x;
-                  const cy = (p.y / 100) * 62;
+                  const point = projectPoint(p);
+                  const cx = point.x;
+                  const cy = (point.y / 100) * 62;
                   const isSelected = selected === p.id;
                   return (
                     <circle
@@ -203,8 +210,9 @@ export default function MapPage({ notify }) {
               {hovered && (() => {
                 const p = projects.find((pr) => pr.id === hovered);
                 if (!p) return null;
+                const point = projectPoint(p);
                 return (
-                  <div className="mod-tooltip" style={{ left: `${p.x}%`, top: `${(p.y / 100) * 100}%` }}>
+                  <div className="mod-tooltip" style={{ left: `${point.x}%`, top: `${point.y}%` }}>
                     <b>{p.name}</b>
                     <span className="mono">{formatSum(p.amountMln)}</span>
                   </div>
@@ -246,7 +254,7 @@ export default function MapPage({ notify }) {
                 </div>
                 <button
                   className="btn btn-primary"
-                  onClick={() => notify("Демо: переход в ИС Аналитического центра", selectedProject.name)}
+                  onClick={() => setDetailOpen(true)}
                 >
                   Подробнее о проекте
                 </button>
@@ -274,6 +282,30 @@ export default function MapPage({ notify }) {
           </div>
         </div>
       </section>
+      {detailOpen && selectedProject && (
+        <div className="mod-modal-overlay" role="dialog" aria-modal="true" aria-label={`Проект ${selectedProject.name}`} onClick={() => setDetailOpen(false)}>
+          <div className="mod-project-detail" onClick={(e) => e.stopPropagation()}>
+            <div className="mod-pc-top">
+              <div><span className="eyebrow">Карточка профинансированного проекта</span><h2>{selectedProject.name}</h2></div>
+              <button className="mod-modal-close" onClick={() => setDetailOpen(false)} aria-label="Закрыть"><X size={20} /></button>
+            </div>
+            <p className="mod-pc-desc">{selectedProject.desc}</p>
+            <div className="mod-detail-grid">
+              <div><span>Оператор</span><b>{selectedProject.org}</b></div>
+              <div><span>Инструмент</span><b>{selectedProject.org.includes("Лизинг") || selectedProject.org === "КазАгроФинанс" ? "Лизинг" : selectedProject.org === "Даму" ? "Гарантия" : "Финансирование"}</b></div>
+              <div><span>Объём</span><b className="mono">{formatSum(selectedProject.amountMln)}</b></div>
+              <div><span>Год</span><b className="mono">{selectedProject.year}</b></div>
+              <div><span>Рабочие места</span><b className="mono">{selectedProject.jobs}</b></div>
+              <div><span>Статус</span><b>{selectedProject.status}</b></div>
+              <div><span>Местоположение</span><b>{selectedProject.city}</b></div>
+              <div><span>Координаты WGS84</span><b className="mono">{selectedProject.lat.toFixed(4)}, {selectedProject.lng.toFixed(4)}</b></div>
+            </div>
+            <a className="btn btn-primary" target="_blank" rel="noreferrer" href={`https://www.openstreetmap.org/?mlat=${selectedProject.lat}&mlon=${selectedProject.lng}#map=11/${selectedProject.lat}/${selectedProject.lng}`}>
+              Открыть точку в OpenStreetMap
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

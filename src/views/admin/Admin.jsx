@@ -10,13 +10,20 @@ import {
   RefreshCcw,
   ShieldCheck,
   Radio,
+  Database,
+  FileEdit,
+  Settings,
 } from "lucide-react";
 import api from "../../api.js";
 import Constructor from "./Constructor.jsx";
 import { useAuth } from "../../shell/auth.js";
+import { dictionaries } from "../../data/dictionaries.js";
 
 const SECTIONS = [
   { id: "services", label: "Услуги", icon: Boxes },
+  { id: "dictionaries", label: "Справочники", icon: Database },
+  { id: "content", label: "Контент", icon: FileEdit },
+  { id: "configuration", label: "Конфигурация", icon: Settings },
   { id: "applications", label: "Заявки", icon: Inbox },
   { id: "integrations", label: "Интеграции", icon: Cable },
 ];
@@ -103,6 +110,23 @@ export default function Admin({ go, route, notify, openAssistant }) {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
   const [openService, setOpenService] = useState(null); // service object в конструкторе
+  const [dictionaryState, setDictionaryState] = useState(() => JSON.parse(JSON.stringify(dictionaries)));
+  const [contentState, setContentState] = useState({ heroTitle: "Единый портал поддержки бизнеса", heroSubtitle: "Найдите подходящую меру поддержки и подайте заявку онлайн", supportPhone: "1408", announcement: "Приём заявок открыт" });
+  const [configState, setConfigState] = useState({ maintenanceMode: false, aiNavigator: true, eGovPrefill: true, applicationSigning: true, maxUploadMb: 10, reviewSlaDays: 10 });
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("eppb-admin-settings") || "null");
+      if (saved?.dictionaries) setDictionaryState(saved.dictionaries);
+      if (saved?.content) setContentState(saved.content);
+      if (saved?.configuration) setConfigState(saved.configuration);
+    } catch {}
+  }, []);
+
+  function saveAdminSettings() {
+    localStorage.setItem("eppb-admin-settings", JSON.stringify({ dictionaries: dictionaryState, content: contentState, configuration: configState }));
+    notify?.("Настройки сохранены", "Изменения сохранены для демо-контура");
+  }
 
   async function loadAll() {
     setLoading(true);
@@ -345,6 +369,34 @@ export default function Admin({ go, route, notify, openAssistant }) {
           </section>
         )}
 
+        {section === "dictionaries" && (
+          <ManagementPanel title="Справочники" description="Редактирование значений, используемых в формах, каталоге и карте." onSave={saveAdminSettings}>
+            {Object.entries(dictionaryState).map(([key, items]) => (
+              <DictionaryEditor key={key} name={key} items={items} onChange={(next) => setDictionaryState((cur) => ({ ...cur, [key]: next }))} />
+            ))}
+          </ManagementPanel>
+        )}
+
+        {section === "content" && (
+          <ManagementPanel title="Контент портала" description="Основные публичные тексты без изменения кода." onSave={saveAdminSettings}>
+            <div className="adm-settings-grid">
+              {Object.entries(contentState).map(([key, value]) => <label key={key} className="adm-field"><span className="label">{key}</span><input className="input" value={value} onChange={(e) => setContentState((cur) => ({ ...cur, [key]: e.target.value }))} /></label>)}
+            </div>
+          </ManagementPanel>
+        )}
+
+        {section === "configuration" && (
+          <ManagementPanel title="Конфигурация" description="Функциональные флаги и операционные лимиты MVP." onSave={saveAdminSettings}>
+            <div className="adm-settings-grid">
+              {Object.entries(configState).map(([key, value]) => typeof value === "boolean" ? (
+                <label key={key} className="adm-config-toggle"><span><b>{key}</b><small>{value ? "Включено" : "Выключено"}</small></span><input type="checkbox" checked={value} onChange={(e) => setConfigState((cur) => ({ ...cur, [key]: e.target.checked }))} /></label>
+              ) : (
+                <label key={key} className="adm-field"><span className="label">{key}</span><input className="input" type="number" value={value} onChange={(e) => setConfigState((cur) => ({ ...cur, [key]: Number(e.target.value) }))} /></label>
+              ))}
+            </div>
+          </ManagementPanel>
+        )}
+
         {section === "integrations" && (
           <section className="adm-panel">
             <h2 className="adm-panel-title" style={{ marginBottom: 14 }}>
@@ -404,4 +456,16 @@ export default function Admin({ go, route, notify, openAssistant }) {
       </main>
     </div>
   );
+}
+
+function ManagementPanel({ title, description, onSave, children }) {
+  return <section className="adm-panel"><div className="spread" style={{ marginBottom: 16 }}><div><h2 className="adm-panel-title">{title}</h2><p className="muted small">{description}</p></div><button className="btn btn-gold" onClick={onSave}>Сохранить изменения</button></div>{children}</section>;
+}
+
+function DictionaryEditor({ name, items, onChange }) {
+  const normalized = Array.isArray(items) ? items : [];
+  return <details className="adm-dictionary" open={name === "regions"}><summary><b>{name}</b><span className="chip chip-line">{normalized.length} знач.</span></summary><div className="stack">
+    {normalized.map((item, index) => <div className="adm-dict-row" key={`${name}-${index}`}><input className="input mono" value={item.value ?? item.id ?? ""} onChange={(e) => onChange(normalized.map((x, i) => i === index ? { ...x, [x.value !== undefined ? "value" : "id"]: e.target.value } : x))} /><input className="input" value={item.label || ""} onChange={(e) => onChange(normalized.map((x, i) => i === index ? { ...x, label: e.target.value } : x))} /><button className="btn btn-ghost btn-sm btn-danger" onClick={() => onChange(normalized.filter((_, i) => i !== index))}>Удалить</button></div>)}
+    <button className="btn btn-ghost btn-sm" onClick={() => onChange([...normalized, { value: `new-${normalized.length + 1}`, label: "Новое значение" }])}><Plus size={14} /> Добавить значение</button>
+  </div></details>;
 }

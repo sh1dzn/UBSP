@@ -92,6 +92,13 @@
 .mod-pc-stats div { font-size: 13px; color: var(--muted); }
 .mod-pc-stats b { display: block; color: var(--ink); font-size: 15px; }
 .mod-pc-empty { color: var(--muted); text-align: center; padding: 28px 10px; }
+.mod-project-detail { width: min(720px, 94vw); max-height: 88vh; overflow: auto; background: var(--card); border-radius: var(--r-lg); padding: 26px; box-shadow: var(--shadow-lift); }
+.mod-project-detail h2 { margin: 8px 0 14px; font-size: 24px; }
+.mod-detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 20px 0; }
+.mod-detail-grid div { padding: 13px; border: 1px solid var(--line); border-radius: var(--r); background: var(--paper); }
+.mod-detail-grid span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 4px; }
+.mod-detail-grid b { font-size: 14px; }
+@media (max-width: 620px) { .mod-detail-grid { grid-template-columns: 1fr; } }
 
 .mod-regions { margin-top: 22px; }
 .mod-region-bar-row { display: grid; grid-template-columns: 160px 1fr 40px; align-items: center; gap: 10px; margin-bottom: 8px; }

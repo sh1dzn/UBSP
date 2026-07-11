@@ -95,7 +95,12 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
   const [hasDraft, setHasDraft] = useState(() => !!loadDraft(service.id, stage.id));
   const formRef = useRef(null);
 
-  const currentStep = steps[stepIndex] || null;
+  const visibleSteps = useMemo(() => steps.filter((step) => isVisible(step.when, answers)), [steps, answers]);
+  const currentStep = visibleSteps[stepIndex] || null;
+
+  useEffect(() => {
+    if (stepIndex >= visibleSteps.length) setStepIndex(Math.max(0, visibleSteps.length - 1));
+  }, [stepIndex, visibleSteps.length]);
 
   // живой пересчёт calc-полей по всем видимым шагам стейджа
   useEffect(() => {
@@ -125,8 +130,6 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
     onSaveDraft && onSaveDraft(answers);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answers, service.id, stage.id]);
-
-  const visibleSteps = steps; // шаги пока не скрываются целиком; ветвление — на уровне полей
 
   function updateAnswer(fieldId, value) {
     setAnswers((prev) => ({ ...prev, [fieldId]: value }));
@@ -192,7 +195,7 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
       return;
     }
     setErrors({});
-    if (stepIndex < steps.length - 1) {
+    if (stepIndex < visibleSteps.length - 1) {
       setStepIndex((i) => i + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
@@ -258,7 +261,7 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
       <div className="fr-main" ref={formRef}>
         <div className="fr-rail-wrap">
           <div className="rail">
-            {steps.map((step, idx) => (
+            {visibleSteps.map((step, idx) => (
               <div
                 key={step.id}
                 className={`rail-node${idx < stepIndex ? " done" : ""}${idx === stepIndex ? " active" : ""}`}
@@ -314,7 +317,7 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
             ) : null}
           </div>
           <button type="button" className="btn btn-primary" onClick={handleNext}>
-            {stepIndex < steps.length - 1 ? (
+            {stepIndex < visibleSteps.length - 1 ? (
               <>
                 Далее <ArrowRight size={16} />
               </>

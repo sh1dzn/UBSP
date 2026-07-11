@@ -80,6 +80,80 @@ function CreditCalculator({ openAssistant }) {
   );
 }
 
+function LeasingCalculator({ openAssistant }) {
+  const [asset, setAsset] = useState(30000000);
+  const [advancePct, setAdvancePct] = useState(20);
+  const [rate, setRate] = useState(13.5);
+  const [months, setMonths] = useState(60);
+  const advance = asset * advancePct / 100;
+  const financed = Math.max(0, asset - advance);
+  const payment = annuityPayment(financed, rate, months);
+  const total = advance + payment * months;
+  return <CalculatorPanel title="Лизинговый калькулятор" fields={<>
+    <MoneyField label="Стоимость предмета лизинга, ₸" value={asset} onChange={setAsset} />
+    <RangeField label="Аванс" min={10} max={50} step={1} value={advancePct} onChange={setAdvancePct} suffix="%" />
+    <RangeField label="Ставка" min={3} max={25} step={0.1} value={rate} onChange={setRate} suffix="%" decimals={1} />
+    <RangeField label="Срок" min={12} max={120} step={1} value={months} onChange={setMonths} suffix=" мес" />
+  </>} result={<>
+    <ResultMain label="Ежемесячный платёж" value={`${formatMoney(payment)} ₸`} />
+    <ResultRow label="Первоначальный взнос" value={`${formatMoney(advance)} ₸`} />
+    <ResultRow label="Сумма финансирования" value={`${formatMoney(financed)} ₸`} />
+    <ResultRow label="Итого выплат" value={`${formatMoney(total)} ₸`} />
+    <button className="btn btn-gold mod-calc-cta" onClick={() => openAssistant(`Нужен лизинг актива стоимостью ${formatMoney(asset)} ₸ на ${months} месяцев`)}>Подобрать программу лизинга</button>
+  </>} />;
+}
+
+function DebtLoadCalculator() {
+  const [revenue, setRevenue] = useState(6000000);
+  const [payments, setPayments] = useState(1500000);
+  const [newPayment, setNewPayment] = useState(600000);
+  const ratio = revenue ? ((payments + newPayment) / revenue) * 100 : 0;
+  const level = ratio <= 40 ? ["Комфортная", "chip-green"] : ratio <= 50 ? ["Пограничная", "chip-amber"] : ["Высокая", "chip-red"];
+  return <CalculatorPanel title="Проверка долговой нагрузки" fields={<>
+    <MoneyField label="Среднемесячная выручка, ₸" value={revenue} onChange={setRevenue} />
+    <MoneyField label="Текущие ежемесячные платежи, ₸" value={payments} onChange={setPayments} />
+    <MoneyField label="Платёж по новому финансированию, ₸" value={newPayment} onChange={setNewPayment} />
+  </>} result={<>
+    <ResultMain label="Коэффициент долговой нагрузки" value={`${ratio.toFixed(1)}%`} />
+    <div style={{ marginBottom: 12 }}><span className={`chip ${level[1]}`}>{level[0]} нагрузка</span></div>
+    <ResultRow label="Все платежи в месяц" value={`${formatMoney(payments + newPayment)} ₸`} />
+    <p className="muted small" style={{ marginTop: 14 }}>Ориентир MVP: до 40% — комфортно, 40–50% — требуется анализ, выше 50% — повышенный риск. Финальное решение принимает финансовая организация.</p>
+  </>} />;
+}
+
+function SubsidyCalculator({ openAssistant }) {
+  const [amount, setAmount] = useState(20000000);
+  const [marketRate, setMarketRate] = useState(20);
+  const [subsidy, setSubsidy] = useState(12);
+  const [months, setMonths] = useState(36);
+  const effectiveRate = Math.max(0, marketRate - subsidy);
+  const marketPayment = annuityPayment(amount, marketRate, months);
+  const subsidizedPayment = annuityPayment(amount, effectiveRate, months);
+  const saving = (marketPayment - subsidizedPayment) * months;
+  return <CalculatorPanel title="Калькулятор субсидирования ставки" fields={<>
+    <MoneyField label="Сумма кредита, ₸" value={amount} onChange={setAmount} />
+    <RangeField label="Рыночная ставка" min={8} max={30} step={0.1} value={marketRate} onChange={setMarketRate} suffix="%" decimals={1} />
+    <RangeField label="Субсидируемая часть" min={0} max={20} step={0.1} value={subsidy} onChange={setSubsidy} suffix=" п.п." decimals={1} />
+    <RangeField label="Срок" min={6} max={84} step={1} value={months} onChange={setMonths} suffix=" мес" />
+  </>} result={<>
+    <ResultMain label="Эффективная ставка для бизнеса" value={`${effectiveRate.toFixed(1)}%`} />
+    <ResultRow label="Платёж без субсидии" value={`${formatMoney(marketPayment)} ₸`} />
+    <ResultRow label="Платёж с субсидией" value={`${formatMoney(subsidizedPayment)} ₸`} />
+    <ResultRow label="Экономия за срок" value={`${formatMoney(saving)} ₸`} />
+    <button className="btn btn-gold mod-calc-cta" onClick={() => openAssistant(`Ищу субсидирование кредита ${formatMoney(amount)} ₸, рыночная ставка ${marketRate}%`)}>Найти подходящую субсидию</button>
+  </>} />;
+}
+
+function MoneyField({ label, value, onChange }) {
+  return <div className="mod-calc-field"><span className="label">{label}</span><input className="input mono" inputMode="numeric" value={formatMoney(value)} onChange={(e) => onChange(parseMoney(e.target.value))} /></div>;
+}
+function RangeField({ label, min, max, step, value, onChange, suffix, decimals = 0 }) {
+  return <div className="mod-calc-field"><span className="label">{label}</span><div className="mod-calc-slider-row"><input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} /><span className="mono">{Number(value).toFixed(decimals)}{suffix}</span></div></div>;
+}
+function ResultMain({ label, value }) { return <><div className="mod-calc-result-label">{label}</div><div className="mod-calc-result-value mono">{value}</div></>; }
+function ResultRow({ label, value }) { return <div className="mod-calc-sub"><span>{label}</span><b className="mono">{value}</b></div>; }
+function CalculatorPanel({ title, fields, result }) { return <div className="mod-calc-panel"><h3 style={{ marginBottom: 18 }}>{title}</h3><div className="mod-calc-grid"><div>{fields}</div><div className="mod-calc-result">{result}</div></div></div>; }
+
 function GuideCard({ guide }) {
   const [open, setOpen] = useState(false);
   return (
@@ -149,7 +223,10 @@ function ChecklistCard({ checklist }) {
 
 export default function Tools({ notify, openAssistant }) {
   const [calcOpen, setCalcOpen] = useState(null);
-  const creditCalc = tools.calculators.find((c) => c.id === "credit" || /кредит/i.test(c.title));
+  const calculator = calcOpen === "credit-calc" ? <CreditCalculator openAssistant={openAssistant} />
+    : calcOpen === "leasing-calc" ? <LeasingCalculator openAssistant={openAssistant} />
+    : calcOpen === "debt-load-calc" ? <DebtLoadCalculator />
+    : calcOpen === "subsidy-calc" ? <SubsidyCalculator openAssistant={openAssistant} /> : null;
 
   return (
     <div className="container">
@@ -169,28 +246,19 @@ export default function Tools({ notify, openAssistant }) {
         </div>
         <div className="mod-tool-grid">
           {tools.calculators.map((c) => {
-            const isCredit = c.id === "credit" || /кредит/i.test(c.title);
             return (
               <div key={c.id} className="card card-hover mod-tool-card">
                 <span className="mod-tool-icon"><Calculator size={19} /></span>
                 <h3>{c.title}</h3>
                 <p>{c.desc}</p>
-                {isCredit ? (
-                  <button className="btn btn-primary" onClick={() => setCalcOpen((v) => v === c.id ? null : c.id)}>
-                    {calcOpen === c.id ? "Свернуть" : "Рассчитать"}
-                  </button>
-                ) : (
-                  <button className="btn" onClick={() => notify("Скоро", `Калькулятор «${c.title}» появится в следующем обновлении`)}>
-                    Скоро
-                  </button>
-                )}
+                <button className="btn btn-primary" onClick={() => setCalcOpen((v) => v === c.id ? null : c.id)}>
+                  {calcOpen === c.id ? "Свернуть" : "Рассчитать"}
+                </button>
               </div>
             );
           })}
         </div>
-        {creditCalc && calcOpen === creditCalc.id && (
-          <CreditCalculator openAssistant={openAssistant} />
-        )}
+        {calculator}
       </section>
 
       <section className="mod-section">
@@ -217,12 +285,9 @@ export default function Tools({ notify, openAssistant }) {
                   <td><span className="chip chip-line">{t.format}</span></td>
                   <td className="mono">{t.size}</td>
                   <td>
-                    <button
-                      className="btn btn-sm btn-ghost"
-                      onClick={() => notify("Демо: файл-шаблон", `«${t.title}» будет доступен для скачивания в рабочей версии`)}
-                    >
+                    <a className="btn btn-sm btn-ghost" href={t.href} download>
                       <Download size={14} /> Скачать
-                    </button>
+                    </a>
                   </td>
                 </tr>
               ))}
