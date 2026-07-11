@@ -110,7 +110,7 @@ export default function PortalShell({ children }) {
                 <Link href="/login" className="btn btn-sm login-launch">Войти</Link>
               )}
               <button className="btn btn-sm assistant-launch" onClick={() => openAssistant()}>
-                <Bot size={16} /> Навигатор
+                <Bot size={16} /> <span className="assistant-label">Навигатор</span>
               </button>
               <button
                 className="btn btn-sm menu-toggle"

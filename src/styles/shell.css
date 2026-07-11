@@ -121,3 +121,16 @@
 
 .footer-phone { display: inline-flex; align-items: center; gap: 6px; }
 .footer-phone b { color: var(--gold); }
+
+/* ---------- мобильная шапка ---------- */
+@media (max-width: 720px) {
+  .site-header-inner { gap: 8px; height: 64px; }
+  .site-header.over-hero .site-header-inner { height: 68px; }
+  .user-chip { padding: 8px; max-width: 40px; }
+  .user-chip .user-chip-name,
+  .user-chip svg:last-child { display: none; }
+  .assistant-launch { padding: 9px 11px; }
+  .assistant-launch .assistant-label { display: none; }
+  .brand-mark { width: 34px; height: 34px; }
+  .brand-mark img { width: 23px; height: 23px; }
+}

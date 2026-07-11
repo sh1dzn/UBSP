@@ -150,3 +150,9 @@
 .fr-review-result li { margin-bottom: 4px; }
 .fr-review-result li.error { color: var(--red); }
 .fr-review-result li.warning { color: var(--amber); }
+
+@media (max-width: 480px) {
+  .fr-bin-row { flex-wrap: wrap; }
+  .fr-bin-row .btn { width: 100%; justify-content: center; }
+  .fr-rail-scroll, .fr-steps-rail { overflow-x: auto; }
+}
