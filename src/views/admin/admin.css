@@ -74,6 +74,29 @@
   padding: 22px 28px 48px;
 }
 
+@media (max-width: 900px) {
+  .adm-shell { display: block; }
+  .adm-side {
+    width: 100%; height: auto; position: static; padding: 10px 14px;
+    gap: 10px; flex-direction: row; align-items: center; overflow-x: auto;
+  }
+  .adm-side-brand { border-bottom: 0; padding: 4px 8px; flex: none; }
+  .adm-side-nav { flex-direction: row; gap: 4px; overflow-x: auto; }
+  .adm-side-link { white-space: nowrap; padding: 8px 10px; }
+  .adm-side-foot { display: none; }
+  .adm-main { padding: 18px 14px 32px; }
+  .adm-topbar { align-items: stretch; flex-direction: column; gap: 10px; }
+  .adm-topbar .row { flex-wrap: wrap; }
+  .adm-ctor-body { grid-template-columns: 1fr; }
+  .adm-tree { max-height: 32vh; border-right: 0; border-bottom: 1px solid var(--line); }
+}
+
+@media (max-width: 560px) {
+  .adm-ctor-top { padding: 10px 14px; gap: 10px; }
+  .adm-ctor-top-title { min-width: 0; width: 100%; }
+  .adm-tree { max-height: 28vh; }
+}
+
 .adm-topbar {
   display: flex;
   align-items: flex-start;

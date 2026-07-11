@@ -278,3 +278,18 @@ img { max-width: 100%; }
 
 /* единый масштаб заголовков секций */
 .section-title { font-size: 22px; letter-spacing: -0.02em; }
+
+/* ---------- small-screen safety net ---------- */
+@media (max-width: 560px) {
+  body { overflow-x: hidden; }
+  .container { padding-left: 14px; padding-right: 14px; }
+  .card { padding: 16px; border-radius: 14px; }
+  .btn-lg { width: 100%; }
+  .spread { align-items: flex-start; flex-wrap: wrap; }
+  .page-hero { margin-top: 14px; min-height: 220px; }
+  .page-hero-inner { padding: 34px 18px 20px; }
+  .page-hero-actions { align-items: stretch; }
+  .page-hero-actions > * { max-width: 100%; }
+  .registry { font-size: 13px; }
+  .toast-zone { left: 14px; right: 14px; bottom: 14px; max-width: none; }
+}

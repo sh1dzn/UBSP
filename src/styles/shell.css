@@ -11,7 +11,14 @@
   border-bottom: 1px solid var(--line);
 }
 
-.site-header-inner { display: flex; align-items: center; gap: 18px; height: 76px; }
+.site-header-inner {
+  display: flex; align-items: center; gap: 18px; height: 60px;
+  /* The header has more content than the regular page container. Keep all
+     controls in one row, while allowing the centre navigation to absorb
+     the available width. */
+  max-width: 1600px;
+}
+.site-header-inner > .brand { flex: 0 0 auto; min-width: 0; }
 
 .brand { display: flex; align-items: center; gap: 11px; text-decoration: none; color: inherit; }
 .brand:hover { text-decoration: none; }
@@ -29,16 +36,17 @@
 /* пилюля-навигация — одинаковая на всех страницах */
 .site-nav {
   display: flex; align-items: center; gap: 2px;
-  margin-left: auto; margin-right: auto;
+  flex: 1 1 auto; min-width: 0;
+  justify-content: space-between;
   background: rgba(11, 26, 15, 0.86);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--r-pill);
-  padding: 6px;
+  padding: 4px;
 }
 .site-nav a {
-  padding: 9px 16px; border-radius: var(--r-pill);
+  padding: 7px 12px; border-radius: var(--r-pill);
   font-size: 13.5px; font-weight: 500;
   color: #e6efe6; text-decoration: none;
   transition: color 0.15s, background 0.15s;
@@ -50,10 +58,10 @@
 .site-nav .nav-admin:hover { color: #fff; }
 .site-nav .nav-admin.active { background: var(--lime); color: var(--lime-ink); }
 
-.header-actions { display: flex; align-items: center; gap: 8px; }
+.header-actions { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
 .assistant-launch {
   background: var(--ink-2); border: 1px solid var(--ink-2);
-  border-radius: var(--r-pill); color: #fff; padding: 10px 18px;
+  border-radius: var(--r-pill); color: #fff; padding: 8px 15px;
 }
 .assistant-launch:hover { border-color: var(--lime); color: #fff; }
 .menu-toggle {
@@ -61,15 +69,21 @@
   border-radius: var(--r-pill); color: #fff;
 }
 
+@media (max-width: 1240px) {
+  .site-header-inner { gap: 10px; }
+  .site-header-inner > .brand { flex-basis: auto; min-width: 0; }
+  .site-nav a { padding-left: 9px; padding-right: 9px; font-size: 12.5px; }
+  .user-chip { width: 42px; max-width: 42px; }
+}
 @media (max-width: 1080px) {
   .brand-text span { display: none; }
 }
-@media (max-width: 960px) {
+@media (max-width: 1020px) {
   .menu-toggle { display: inline-flex; }
   .site-nav {
     display: none; position: absolute; top: 100%; left: 16px; right: 16px;
     background: rgba(11, 26, 15, 0.96); border-radius: var(--r-lg);
-    flex-direction: column; align-items: stretch; padding: 10px;
+    flex-direction: column; align-items: stretch; justify-content: flex-start; padding: 10px;
   }
   .site-nav.open { display: flex; }
   .site-nav .nav-admin { margin-left: 0; margin-top: 6px; }
@@ -107,7 +121,7 @@
   border-bottom: none;
   color: #fff;
 }
-.site-header.over-hero .site-header-inner { height: 84px; }
+.site-header.over-hero .site-header-inner { height: 64px; }
 .site-header.over-hero .brand-mark { border-color: rgba(255, 255, 255, 0.4); }
 .site-header.over-hero .brand-text span { color: rgba(255, 255, 255, 0.75); }
 .site-header.over-hero .brand-text b,
@@ -138,4 +152,18 @@
   .assistant-launch .assistant-label { display: none; }
   .brand-mark { width: 34px; height: 34px; }
   .brand-mark img { width: 23px; height: 23px; }
+}
+
+@media (max-width: 560px) {
+  .site-header-inner { gap: 6px; }
+  .brand { min-width: 0; }
+  .brand-text b { font-size: 14px; }
+  .header-actions { margin-left: auto; gap: 5px; }
+  .login-launch { padding-left: 10px; padding-right: 10px; }
+  .site-nav { left: 10px; right: 10px; }
+  .site-nav a { padding: 10px 12px; }
+  .footer-inner { padding-top: 32px; padding-left: 14px; padding-right: 14px; gap: 26px; }
+  .footer-cols { gap: 24px; flex-wrap: wrap; }
+  .footer-bottom { padding-left: 14px; padding-right: 14px; flex-wrap: wrap; gap: 8px; }
+  .footer-bottom > span:last-child { width: 100%; }
 }

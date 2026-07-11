@@ -526,3 +526,33 @@
   .pub-gallery { padding-top: 44px; gap: 20px; }
   .pub-eco-links { grid-template-columns: 1fr; }
 }
+
+@media (max-width: 560px) {
+  .pub-hero { padding-top: 48px; }
+  .pub-hero-grid { gap: 22px; }
+  .pub-hero h1 { font-size: clamp(32px, 10vw, 44px); }
+  .pub-hero-sub, .pub-hero2-sub { font-size: 15px; }
+  .pub-search { max-width: none; width: 100%; padding: 5px; }
+  .pub-search input { font-size: 14px; padding: 9px 4px; }
+  .pub-search-btn { padding: 10px 12px; }
+  .pub-search-btn span { display: none; }
+  .pub-section { padding: 40px 0; }
+  .pub-section-head { display: block; margin-bottom: 20px; }
+  .pub-section-head .btn { margin-top: 14px; }
+  .pub-mini-table { grid-template-columns: 1fr; }
+  .pub-catalog-head h1 { font-size: 24px; }
+  .pub-catalog-layout { gap: 18px; }
+  .pub-svc-head h1 { font-size: 28px; }
+  .pub-apply-card { position: static; }
+  .pub-apply-row { align-items: flex-start; }
+  .pub-apply-row b { max-width: 58%; }
+  .pub-result-block { padding: 18px; }
+  .pub-hero2 { min-height: 760px; }
+  .pub-hero2-content { padding-top: 112px; }
+  .pub-hero2-bottom { align-items: stretch; }
+  .pub-cta-lime { justify-content: space-between; width: 100%; }
+  .pub-hero2-tags { width: 100%; }
+  .pub-hero2-tags button { flex: 1; padding-left: 10px; padding-right: 10px; }
+  .pub-gallery { padding-left: 14px; padding-right: 14px; }
+  .pub-gallery-head h2 { font-size: 22px; }
+}

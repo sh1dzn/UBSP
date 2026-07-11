@@ -31,17 +31,18 @@
 .user-chip {
   display: inline-flex; align-items: center; gap: 8px;
   background: var(--ink-2); color: #fff; border: 1px solid var(--ink-2);
-  border-radius: var(--r-pill); padding: 8px 12px 8px 8px;
+  border-radius: var(--r-pill); padding: 6px 12px 6px 7px;
   font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer;
-  max-width: 240px;
+  width: 42px; height: 42px; justify-content: center; padding: 5px;
 }
 .user-chip:hover { border-color: var(--lime); }
 .user-chip-icon {
-  width: 24px; height: 24px; border-radius: 50%; flex: none;
+  width: 22px; height: 22px; border-radius: 50%; flex: none;
   background: var(--lime); color: var(--lime-ink);
   display: inline-flex; align-items: center; justify-content: center;
 }
-.user-chip-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-chip-name { display: none; }
+.user-chip > svg { display: none; }
 .user-menu {
   color: var(--ink);
   position: absolute; right: 0; top: calc(100% + 8px); z-index: 120;
