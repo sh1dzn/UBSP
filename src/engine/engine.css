@@ -115,6 +115,15 @@
 
 /* ---------- нижняя навигация ---------- */
 .fr-nav { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); }
+.fr-readiness { display:flex; gap:12px; padding:14px 16px; margin-bottom:20px; border:1px solid var(--amber); border-radius:var(--r); background:var(--amber-soft); }
+.fr-readiness.is-ready { border-color:var(--green); background:var(--green-soft); }
+.fr-readiness-icon { flex:none; }.fr-readiness p { margin:3px 0 0; color:var(--muted); font-size:13px; }
+.fr-review-sheet { margin-top:24px; padding:18px; border:1px solid var(--line); border-radius:var(--r); background:var(--paper); }
+.fr-review-sheet-head { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+.fr-review-sheet section + section { margin-top:16px; padding-top:16px; border-top:1px solid var(--line); }
+.fr-review-sheet h3 { font-size:14px; margin:0 0 10px; }.fr-review-sheet dl { margin:0; display:grid; grid-template-columns:1fr 1fr; gap:10px 18px; }
+.fr-review-sheet dl div { min-width:0; }.fr-review-sheet dt { font-size:11px; color:var(--muted); }.fr-review-sheet dd { margin:2px 0 0; font-size:13px; font-weight:600; overflow-wrap:anywhere; }
+@media (max-width:640px) { .fr-review-sheet dl { grid-template-columns:1fr; } }
 
 /* ---------- сайдбар ---------- */
 .fr-sidebar { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 20px; }
