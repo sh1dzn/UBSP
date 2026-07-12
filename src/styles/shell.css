@@ -59,6 +59,9 @@
 .site-nav .nav-admin.active { background: var(--lime); color: var(--lime-ink); }
 
 .header-actions { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+.language-switch { display: inline-flex; padding: 2px; border: 1px solid var(--line); border-radius: var(--r-pill); background: var(--card); }
+.language-switch button { min-width: 38px; min-height: 32px; padding: 4px 7px; border: 0; border-radius: var(--r-pill); background: transparent; color: var(--muted); font: inherit; font-size: 12px; cursor: pointer; }
+.language-switch button[aria-pressed="true"] { background: var(--ink-2); color: #fff; }
 .assistant-launch {
   background: var(--ink-2); border: 1px solid var(--ink-2);
   border-radius: var(--r-pill); color: #fff; padding: 8px 15px;
@@ -159,6 +162,7 @@
   .brand { min-width: 0; }
   .brand-text b { font-size: 14px; }
   .header-actions { margin-left: auto; gap: 5px; }
+  .language-switch button { min-width: 34px; }
   .login-launch { padding-left: 10px; padding-right: 10px; }
   .site-nav { left: 10px; right: 10px; }
   .site-nav a { padding: 10px 12px; }
