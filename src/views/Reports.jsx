@@ -1,6 +1,7 @@
 "use client";
-import { useMemo, useState } from "react";
-import { Search, ExternalLink, PlayCircle, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { Search, ExternalLink, PlayCircle, X, RotateCcw } from "lucide-react";
 import { reports } from "../data/reports.js";
 import PageHero from "../shell/PageHero.jsx";
 
@@ -12,10 +13,13 @@ export default function Reports() {
   const [type, setType] = useState("");
   const [org, setOrg] = useState("");
   const [query, setQuery] = useState("");
+  const [period, setPeriod] = useState("");
   const [modalReport, setModalReport] = useState(null);
+  const [embedState, setEmbedState] = useState("loading");
 
   const orgs = useMemo(() => Array.from(new Set(reports.map((r) => r.org))).sort((a, b) => a.localeCompare(b, "ru")), []);
   const types = useMemo(() => Array.from(new Set(reports.map((r) => r.type))), []);
+  const periods = useMemo(() => Array.from(new Set(reports.map((r) => r.period))).sort((a, b) => b.localeCompare(a, "ru", { numeric: true })), []);
 
   const featured = useMemo(() => reports.filter((r) => r.embeddable).slice(0, 2), []);
 
@@ -24,10 +28,20 @@ export default function Reports() {
     return reports.filter((r) => {
       if (type && r.type !== type) return false;
       if (org && r.org !== org) return false;
+      if (period && r.period !== period) return false;
       if (q && !(r.title.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q) || (r.tags || []).some((t) => t.toLowerCase().includes(q)))) return false;
       return true;
     });
-  }, [type, org, query]);
+  }, [type, org, period, query]);
+
+  useEffect(() => {
+    if (!modalReport) return undefined;
+    setEmbedState("loading");
+    const timer = window.setTimeout(() => setEmbedState((state) => state === "loading" ? "fallback" : state), 6000);
+    return () => window.clearTimeout(timer);
+  }, [modalReport]);
+
+  const resetFilters = () => { setType(""); setOrg(""); setPeriod(""); setQuery(""); };
 
   const featuredIds = new Set(featured.map((r) => r.id));
   const rest = filtered.filter((r) => !featuredIds.has(r.id));
@@ -89,9 +103,13 @@ export default function Reports() {
             ))}
           </div>
           <div className="row" style={{ gap: 12 }}>
-            <select className="select" style={{ width: 200 }} value={org} onChange={(e) => setOrg(e.target.value)}>
+            <select aria-label="Организация" className="select mod-report-select" value={org} onChange={(e) => setOrg(e.target.value)}>
               <option value="">Все организации</option>
               {orgs.map((o) => <option key={o} value={o}>{o}</option>)}
+            </select>
+            <select aria-label="Период" className="select mod-report-select" value={period} onChange={(e) => setPeriod(e.target.value)}>
+              <option value="">Все периоды</option>
+              {periods.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
             <div className="mod-search">
               <Search size={15} />
@@ -105,7 +123,13 @@ export default function Reports() {
           </div>
         </div>
 
-        {featured.length > 0 && !type && !org && !query && (
+        {(type || org || period || query) && (
+          <button type="button" className="btn btn-sm btn-ghost mod-reset-inline" onClick={resetFilters}>
+            <RotateCcw size={14} /> Сбросить фильтры
+          </button>
+        )}
+
+        {featured.length > 0 && !type && !org && !period && !query && (
           <>
             <div className="mod-section-head">
               <div>
@@ -132,10 +156,15 @@ export default function Reports() {
           </div>
         ) : (
           <div className="mod-report-grid">
-            {(type || org || query ? filtered : rest).map(renderCard)}
+            {(type || org || period || query ? filtered : rest).map(renderCard)}
           </div>
         )}
       </section>
+
+      <div className="mod-related-nav">
+        <div><span className="eyebrow">Продолжить работу</span><h3>От данных — к проектам и расчётам</h3></div>
+        <div className="mod-related-actions"><Link className="btn btn-ghost" href="/map">Карта проектов</Link><Link className="btn btn-primary" href="/tools">Инструменты бизнеса</Link></div>
+      </div>
 
       {modalReport && (
         <div className="mod-modal-overlay" onClick={() => setModalReport(null)}>
@@ -146,8 +175,12 @@ export default function Reports() {
                 <X size={18} />
               </button>
             </div>
-            <iframe src={modalReport.url} title={modalReport.title} />
-            <div className="mod-modal-note">Материал загружается с сайта организации</div>
+            <div className="mod-embed-wrap">
+              {embedState === "loading" && <div className="mod-embed-status">Загружаем материал с сайта организации…</div>}
+              {embedState === "fallback" && <div className="mod-embed-fallback"><b>Предпросмотр недоступен</b><p>Сайт организации ограничил встраивание или отвечает слишком долго.</p><a className="btn btn-primary" href={modalReport.url} target="_blank" rel="noreferrer">Открыть на сайте <ExternalLink size={15} /></a></div>}
+              <iframe src={modalReport.url} title={modalReport.title} onLoad={() => setEmbedState("ready")} onError={() => setEmbedState("fallback")} />
+            </div>
+            <div className="mod-modal-note">Источник: {modalReport.org} · {modalReport.period} · <a href={modalReport.url} target="_blank" rel="noreferrer">открыть оригинал</a></div>
           </div>
         </div>
       )}
