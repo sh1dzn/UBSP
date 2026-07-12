@@ -56,7 +56,6 @@
 .adm-side-link.active {
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
-  box-shadow: inset 3px 0 0 var(--gold);
 }
 
 .adm-side-foot {

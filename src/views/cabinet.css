@@ -295,7 +295,6 @@
   gap: 12px;
   align-items: flex-start;
   background: var(--gold-soft);
-  border-left: 3px solid var(--gold);
   border-radius: var(--r);
   padding: 16px 18px;
   color: var(--gold-deep);
