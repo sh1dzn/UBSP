@@ -7,6 +7,7 @@ import { isVisible } from "./conditions.js";
 import { validateStep, collectVisibleFields } from "./validate.js";
 import { evalFormula, evalRule } from "./formula.js";
 import { dictionaries } from "../data/dictionaries.js";
+import { activeBranchReasons } from "./branching.js";
 import api from "../api.js";
 
 function draftKey(serviceId, stageId) {
@@ -255,6 +256,7 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
   }
 
   const visibleFields = collectVisibleFields(currentStep, answers);
+  const branchReasons = activeBranchReasons(visibleFields, answers, service, dictionaries);
 
   return (
     <div className="fr-layout">
@@ -276,6 +278,13 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
           <h2>{currentStep.title}</h2>
           {currentStep.hint ? <p className="muted">{currentStep.hint}</p> : null}
         </div>
+
+        {branchReasons.length ? (
+          <div className="fr-branch-note" role="status">
+            <span className="fr-branch-note-label">Почему появились эти поля</span>
+            <span>{branchReasons.join(" · ")}</span>
+          </div>
+        ) : null}
 
         <div className="grid12">
           {visibleFields.map((field) => {

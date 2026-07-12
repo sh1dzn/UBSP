@@ -519,3 +519,5 @@
 .adm-dictionary[open] summary { border-bottom: 1px solid var(--line); margin-bottom: 12px; }
 .adm-dict-row { display: grid; grid-template-columns: minmax(150px, .7fr) 1.5fr auto; gap: 8px; }
 @media (max-width: 760px) { .adm-settings-grid { grid-template-columns: 1fr; } .adm-dict-row { grid-template-columns: 1fr; } }
+.adm-branch-reasons { display: flex; flex-wrap: wrap; gap: 5px; max-width: 360px; }
+.adm-branch-reasons .chip { white-space: normal; text-align: left; line-height: 1.25; }
