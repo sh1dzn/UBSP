@@ -176,6 +176,9 @@ function seedDemoData(state) {
   const stage = service?.stages?.[0];
   const id = "EPPB-2026-001041";
   const createdAt = new Date(Date.now() - 4 * 24 * 3600 * 1000).toISOString();
+  const correctionDeadline = new Date(Date.now() + 6 * 24 * 3600 * 1000);
+  const correctionDeadlineIso = correctionDeadline.toISOString().slice(0, 10);
+  const correctionDeadlineLabel = correctionDeadline.toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
   const timeline = [
     { date: createdAt, title: "Заявка подана", text: "Заявка сформирована заявителем в личном кабинете", kind: "user" },
     { date: createdAt, title: "Подписано ЭЦП", text: "Комплект документов подписан электронной цифровой подписью (мок)", kind: "system" },
@@ -195,7 +198,7 @@ function seedDemoData(state) {
     stageId: stage?.id || "prescreening",
     stageTitle: stage?.title || "Предварительная заявка",
     status: "info_requested",
-    statusLabel: "Нужны дополнительные сведения до 18 июля",
+    statusLabel: `Нужны дополнительные сведения до ${correctionDeadlineLabel}`,
     answers: {
       companyName: "КХ «Алтын Дала»",
       bin: "010203040506",
@@ -208,7 +211,7 @@ function seedDemoData(state) {
     infoRequest: {
       id: "req-001",
       requestedAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-      deadline: "2026-07-18",
+      deadline: correctionDeadlineIso,
       reason: "Для проверки полномочий и расчёта финансовой устойчивости не хватает полного устава и расшифровки кредиторской задолженности.",
       contact: "Менеджер АКК · +7 (7172) 55-99-55",
       status: "open",
@@ -232,7 +235,7 @@ function seedDemoData(state) {
 
   pushNotification(state, {
     appId: id,
-    title: "Нужны дополнительные сведения до 18 июля",
+    title: `Нужны дополнительные сведения до ${correctionDeadlineLabel}`,
     text: `По заявке ${id} замените устав и добавьте расшифровку задолженности`,
     target: { section: "correction", requestId: "req-001" },
   });
@@ -552,7 +555,21 @@ export function submitCorrection(id, { files } = {}) {
   if (app.status !== "info_requested" || !request || request.status !== "open") {
     throw new ApiError(409, "По этой заявке нет активного запроса на уточнение");
   }
-  const supplied = new Map((files || []).map((file) => [file.itemId, file]));
+  if (!Array.isArray(files)) throw new ApiError(400, "Передайте список файлов");
+  const allowedIds = new Set(request.items.map((item) => item.id));
+  const supplied = new Map();
+  for (const file of files) {
+    if (!file || !allowedIds.has(file.itemId)) throw new ApiError(400, "Передан неизвестный пункт запроса");
+    if (supplied.has(file.itemId)) throw new ApiError(400, "Для одного пункта передано несколько файлов");
+    if (typeof file.name !== "string" || !file.name.trim() || file.name.length > 255) throw new ApiError(400, "Некорректное имя файла");
+    if (!Number.isFinite(file.size) || file.size <= 0 || file.size > 25 * 1024 * 1024) throw new ApiError(400, "Размер файла должен быть от 1 байта до 25 МБ");
+    const item = request.items.find((candidate) => candidate.id === file.itemId);
+    const extensions = (item.acceptedTypes || "").split(",").map((value) => value.trim().toLowerCase()).filter(Boolean);
+    if (extensions.length && !extensions.some((extension) => file.name.toLowerCase().endsWith(extension))) {
+      throw new ApiError(400, `Недопустимый формат файла для пункта «${item.title}»`);
+    }
+    supplied.set(file.itemId, { ...file, name: file.name.trim() });
+  }
   const missing = request.items.filter((item) => !supplied.has(item.id));
   if (missing.length) throw new ApiError(400, `Добавьте файлы: ${missing.map((item) => item.title).join(", ")}`);
 

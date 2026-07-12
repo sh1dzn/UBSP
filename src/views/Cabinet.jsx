@@ -38,6 +38,7 @@ function statusChipClass(status) {
 const KIND_LABEL = { user: "Вы", system: "Система", org: "Организация" };
 
 export default function Cabinet({ go, route, notify, openAssistant }) {
+  const demoMode = route?.query?.demo === "1";
   const { user, ready } = useAuth();
   const [applications, setApplications] = useState(null);
   const [notifications, setNotifications] = useState(null);
@@ -56,7 +57,12 @@ export default function Cabinet({ go, route, notify, openAssistant }) {
       const apps = appsRes.applications || [];
       setApplications(apps);
       setNotifications(notifRes.notifications || []);
-      setSelectedId((prev) => route?.query?.app || prev || (apps[0] ? apps[0].id : null));
+      setSelectedId((prev) => {
+        const requested = route?.query?.app;
+        if (requested && apps.some((app) => app.id === requested)) return requested;
+        if (prev && apps.some((app) => app.id === prev)) return prev;
+        return apps[0]?.id || null;
+      });
 
       const uniqueServiceIds = [...new Set(apps.map((a) => a.serviceId))];
       const pairs = await Promise.all(
@@ -114,6 +120,11 @@ export default function Cabinet({ go, route, notify, openAssistant }) {
 
   async function handleCorrectionSubmit() {
     if (!selected?.infoRequest) return;
+    const missing = selected.infoRequest.items.filter((item) => !correctionFiles[item.id]);
+    if (missing.length) {
+      notify?.("Добавьте все файлы", missing.map((item) => item.title).join(", "));
+      return;
+    }
     setSubmittingCorrection(true);
     try {
       const files = selected.infoRequest.items.map((item) => ({ itemId: item.id, name: correctionFiles[item.id].name, size: correctionFiles[item.id].size }));
@@ -172,7 +183,7 @@ export default function Cabinet({ go, route, notify, openAssistant }) {
         </div>
       </PageHero>
 
-      {route?.query?.demo === "1" && (
+      {demoMode && (
         <div className="pub-demo-context cab-demo-context">
           <span className="chip chip-gold">Демо · шаг 4 из 7</span>
           <span>Заявка выбрана. Симулируйте решения BPM, пока не появится кнопка второго этапа.</span>
@@ -229,7 +240,11 @@ export default function Cabinet({ go, route, notify, openAssistant }) {
                 app={app}
                 stages={serviceStages[app.serviceId] || []}
                 active={app.id === selectedId}
-                onClick={() => setSelectedId(app.id)}
+                onClick={() => {
+                  setSelectedId(app.id);
+                  setCorrectionFiles({});
+                  setFocusSection(null);
+                }}
               />
             ))}
           </div>
@@ -239,7 +254,7 @@ export default function Cabinet({ go, route, notify, openAssistant }) {
                 app={selected}
                 onContinue={() =>
                   go(
-                    `/apply/${selected.serviceId}?app=${selected.id}&stage=${selected.nextStage.id}&demo=1`
+                    `/apply/${selected.serviceId}?app=${selected.id}&stage=${selected.nextStage.id}${demoMode ? "&demo=1" : ""}`
                   )
                 }
                 onOpenConstructor={() => go("/login?next=/admin")}
@@ -251,6 +266,7 @@ export default function Cabinet({ go, route, notify, openAssistant }) {
                 onSubmitCorrection={handleCorrectionSubmit}
                 submittingCorrection={submittingCorrection}
                 focusSection={focusSection}
+                demoMode={demoMode}
                 onExplainStatus={() =>
                   openAssistant(
                     `Объясни статус заявки ${selected.id} («${selected.statusLabel}») по услуге «${selected.serviceTitle}». Что мне делать дальше?`
@@ -297,7 +313,7 @@ function ApplicationListCard({ app, stages, active, onClick }) {
   );
 }
 
-function ApplicationDetail({ app, onContinue, onAdvance, onOpenConstructor, advancing, notify, onExplainStatus, correctionFiles, onCorrectionFile, onSubmitCorrection, submittingCorrection, focusSection }) {
+function ApplicationDetail({ app, onContinue, onAdvance, onOpenConstructor, advancing, notify, onExplainStatus, correctionFiles, onCorrectionFile, onSubmitCorrection, submittingCorrection, focusSection, demoMode }) {
   const timeline = [...(app.timeline || [])].reverse();
   return (
     <div className="stack">
@@ -344,7 +360,7 @@ function ApplicationDetail({ app, onContinue, onAdvance, onOpenConstructor, adva
         </div>
       )}
 
-      {app.status === "approved" && (
+      {demoMode && app.status === "approved" && (
         <div className="cab-next-stage cab-demo-finish">
           <Sparkles size={18} />
           <div className="cab-next-stage-body">

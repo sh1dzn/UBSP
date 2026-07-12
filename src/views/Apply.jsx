@@ -194,7 +194,7 @@ export default function Apply({ go, route, notify, openAssistant }) {
           </div>
 
           <div className="row cab-success-actions">
-            <button className="btn btn-primary" onClick={() => go(`/cabinet?app=${result.id}&demo=1`)}>
+            <button className="btn btn-primary" onClick={() => go(`/cabinet?app=${result.id}${demoMode ? "&demo=1" : ""}`)}>
               Открыть эту заявку в кабинете
             </button>
             <button className="btn btn-ghost" onClick={() => go("/")}>
