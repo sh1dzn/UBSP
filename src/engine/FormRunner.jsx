@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, MessageCircleQuestion, Send, Trash2, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
+import { ArrowLeft, ArrowRight, MessageCircleQuestion, Send, Trash2, CheckCircle2, XCircle, AlertTriangle, ClipboardCheck, FileText } from "lucide-react";
 import { FieldControl } from "./fields.jsx";
 import { isVisible } from "./conditions.js";
 import { validateStep, collectVisibleFields } from "./validate.js";
@@ -250,6 +250,22 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
     return Math.round((filled / total) * 100);
   }, [steps, answers]);
 
+  const readiness = useMemo(() => {
+    const required = [];
+    for (const step of visibleSteps) {
+      for (const field of collectVisibleFields(step, answers)) {
+        if (!field.required || field.type === "calc" || field.type === "info") continue;
+        const value = answers[field.id];
+        const filled = value !== undefined && value !== null && value !== "" && !(Array.isArray(value) && value.length === 0);
+        required.push({ field, step, filled });
+      }
+    }
+    const blockingRules = checks.filter((check) => !check.passed && check.level !== "warning");
+    return { required, missing: required.filter((item) => !item.filled), blockingRules, ready: required.every((item) => item.filled) && blockingRules.length === 0 };
+  }, [visibleSteps, answers, checks]);
+
+  const isFinalStep = stepIndex === visibleSteps.length - 1;
+
   if (!currentStep) {
     return <div className="empty">У этого этапа нет шагов.</div>;
   }
@@ -276,6 +292,16 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
           <h2>{currentStep.title}</h2>
           {currentStep.hint ? <p className="muted">{currentStep.hint}</p> : null}
         </div>
+
+        {isFinalStep ? (
+          <div className={`fr-readiness ${readiness.ready ? "is-ready" : ""}`}>
+            <div className="fr-readiness-icon"><ClipboardCheck size={22} /></div>
+            <div>
+              <strong>{readiness.ready ? "Заявка готова к отправке" : "Финальная проверка заявки"}</strong>
+              <p>{readiness.ready ? "Обязательные данные заполнены, блокирующие условия выполнены." : `Осталось: ${readiness.missing.length} обязательных полей и ${readiness.blockingRules.length} условий.`}</p>
+            </div>
+          </div>
+        ) : null}
 
         <div className="grid12">
           {visibleFields.map((field) => {
@@ -305,6 +331,17 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
           })}
         </div>
 
+        {isFinalStep ? (
+          <div className="fr-review-sheet">
+            <div className="fr-review-sheet-head"><FileText size={18} /><strong>Сводка перед отправкой</strong></div>
+            {visibleSteps.slice(0, -1).map((reviewStep) => {
+              const fields = collectVisibleFields(reviewStep, answers).filter((f) => !["info", "file"].includes(f.type) && answers[f.id] !== undefined && answers[f.id] !== "");
+              if (!fields.length) return null;
+              return <section key={reviewStep.id}><h3>{reviewStep.title}</h3><dl>{fields.slice(0, 8).map((field) => <div key={field.id}><dt>{field.label}</dt><dd>{Array.isArray(answers[field.id]) ? answers[field.id].join(", ") : String(answers[field.id])}</dd></div>)}</dl></section>;
+            })}
+          </div>
+        ) : null}
+
         <div className="fr-nav spread">
           <div className="row">
             <button type="button" className="btn" onClick={handleBack} disabled={stepIndex === 0}>
@@ -323,7 +360,7 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
               </>
             ) : (
               <>
-                Отправить заявку <Send size={16} />
+                {readiness.ready ? "Подписать и отправить" : "Проверить и отправить"} <Send size={16} />
               </>
             )}
           </button>
