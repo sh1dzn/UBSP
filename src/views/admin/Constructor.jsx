@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
   ArrowUp,
@@ -18,6 +18,11 @@ import {
   Lightbulb,
   Eye,
   Wand2,
+  Copy,
+  Download,
+  Upload,
+  CheckCircle2,
+  ExternalLink,
 } from "lucide-react";
 import api from "../../api.js";
 import FormRunner from "../../engine/FormRunner.jsx";
@@ -604,6 +609,7 @@ function validateForPublish(draft) {
       errors.push(`Поле без id (${where}).`);
       continue;
     }
+    if (!field.label || !field.label.trim()) errors.push(`Поле «${field.id || "без id"}»: не заполнена подпись.`);
     if (seenIds.has(field.id)) {
       errors.push(`Дублирующийся id поля «${field.id}»: ${seenIds.get(field.id)} и ${where}.`);
     } else {
@@ -629,11 +635,27 @@ function validateForPublish(draft) {
         }
       }
     }
+    const when = parseWhen(field.when);
+    if (when.mode === "condition") {
+      for (const condition of when.conditions) {
+        if (!condition.field) errors.push(`Поле «${field.label || field.id}»: в условии не выбрано поле.`);
+        else if (!seenIds.has(condition.field) && !flat.some((entry) => entry.field.id === condition.field)) {
+          errors.push(`Поле «${field.label || field.id}»: условие ссылается на отсутствующее поле «${condition.field}».`);
+        }
+        if (condition.op !== "truthy" && (condition.value === "" || condition.value == null)) {
+          errors.push(`Поле «${field.label || field.id}»: в условии не задано значение.`);
+        }
+      }
+    }
   }
 
   for (const stage of draft.stages || []) {
     if (!stage.title || !stage.title.trim()) errors.push(`У этапа «${stage.id}» не заполнено название.`);
     if (!stage.steps || stage.steps.length === 0) errors.push(`У этапа «${stage.title || stage.id}» нет ни одного шага.`);
+    for (const step of stage.steps || []) {
+      if (!step.title || !step.title.trim()) errors.push(`У шага «${step.id}» не заполнено название.`);
+      if (!step.fields || step.fields.length === 0) errors.push(`В шаге «${step.title || step.id}» нет полей.`);
+    }
   }
 
   return errors;
@@ -661,10 +683,13 @@ export default function Constructor({ service, onBack, notify, openAssistant }) 
   const [publishErrors, setPublishErrors] = useState(null);
   const [saving, setSaving] = useState(false);
   const [mobilePreview, setMobilePreview] = useState(false);
+  const [publishReceipt, setPublishReceipt] = useState(null);
+  const importRef = useRef(null);
 
   const dirty = JSON.stringify(draft) !== savedSnapshot;
 
   const stats = useMemo(() => countStats(draft), [draft]);
+  const readinessErrors = useMemo(() => validateForPublish(draft), [draft]);
   const previewStage = useMemo(
     () => (draft.stages || []).find((s) => s.id === previewStageId) || draft.stages?.[0] || null,
     [draft, previewStageId]
@@ -859,11 +884,47 @@ export default function Constructor({ service, onBack, notify, openAssistant }) 
       const published = { ...saved, status: "published" };
       setDraft(published);
       setSavedSnapshot(JSON.stringify(published));
+      setPublishReceipt({ id: published.id, version: published.version, publishedAt: new Date().toLocaleString("ru-RU") });
       notify?.("Опубликовано", "Услуга доступна в каталоге");
     } catch (err) {
       notify?.("Не удалось опубликовать", err.message);
     } finally {
       setSaving(false);
+    }
+  }
+
+  function cloneAsTemplate() {
+    const nextId = `${draft.id || "service"}-copy`;
+    const clone = { ...deepClone(draft), id: nextId, title: `${draft.title || "Услуга"} — копия`, status: "draft", version: 1 };
+    setDraft(clone);
+    setSelection({ type: "service" });
+    setPreviewStageId(clone.stages?.[0]?.id || null);
+    notify?.("Шаблон клонирован", `Создан независимый черновик ${nextId}`);
+  }
+
+  function exportSchema() {
+    const blob = new Blob([JSON.stringify(draft, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${draft.id || "service"}.schema.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    notify?.("Схема экспортирована", link.download);
+  }
+
+  async function importSchema(event) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    try {
+      const imported = normalizeAiSchema(JSON.parse(await file.text()));
+      setDraft(imported);
+      setSelection({ type: "service" });
+      setPreviewStageId(imported.stages?.[0]?.id || null);
+      notify?.("Схема импортирована", `${file.name}: ${countStats(imported).fields} полей`);
+    } catch (err) {
+      notify?.("Не удалось импортировать", `Проверьте JSON: ${err.message}`);
     }
   }
 
@@ -934,6 +995,16 @@ export default function Constructor({ service, onBack, notify, openAssistant }) 
           {dirty && <span className="adm-dot" title="Есть несохранённые изменения" />}
         </div>
         <div className="row">
+          <button className="btn btn-ghost btn-sm" onClick={cloneAsTemplate} title="Создать независимый черновик из текущей услуги">
+            <Copy size={15} /> Клонировать
+          </button>
+          <button className="btn btn-ghost btn-sm" onClick={exportSchema} title="Скачать JSON-схему">
+            <Download size={15} /> Экспорт
+          </button>
+          <button className="btn btn-ghost btn-sm" onClick={() => importRef.current?.click()} title="Загрузить JSON-схему">
+            <Upload size={15} /> Импорт
+          </button>
+          <input ref={importRef} type="file" accept="application/json,.json" hidden onChange={importSchema} />
           <button className="btn btn-ghost btn-sm" onClick={() => setAiOpen(true)}>
             <Sparkles size={15} /> Собрать черновик по описанию
           </button>
@@ -946,7 +1017,7 @@ export default function Constructor({ service, onBack, notify, openAssistant }) 
           <button className="btn btn-ghost" onClick={handleSaveDraft} disabled={saving}>
             <Save size={15} /> Сохранить черновик
           </button>
-          <button className="btn btn-gold" onClick={handlePublish} disabled={saving}>
+          <button className="btn btn-gold" onClick={handlePublish} disabled={saving} title={readinessErrors.length ? `${readinessErrors.length} ошибок до публикации` : "Все проверки пройдены"}>
             <UploadCloud size={15} /> Опубликовать
           </button>
         </div>
@@ -1012,7 +1083,7 @@ export default function Constructor({ service, onBack, notify, openAssistant }) 
 
         <div className={`adm-ctor-preview${mobilePreview ? " open" : ""}`}>
           <div className="adm-preview-head">
-            <span className="eyebrow">Живой предпросмотр</span>
+            <div><span className="eyebrow">Живой предпросмотр</span><div className={`adm-readiness ${readinessErrors.length ? "has-errors" : "ready"}`}><CheckCircle2 size={13} /> {readinessErrors.length ? `${readinessErrors.length} замечаний до публикации` : "Готово к публикации"}</div></div>
             {draft.stages.length > 1 && (
               <div className="adm-preview-stages">
                 {draft.stages.map((s) => (
@@ -1082,6 +1153,7 @@ export default function Constructor({ service, onBack, notify, openAssistant }) 
       {publishErrors && (
         <ErrorsModal errors={publishErrors} onClose={() => setPublishErrors(null)} />
       )}
+      {publishReceipt && <PublishReceipt receipt={publishReceipt} onClose={() => setPublishReceipt(null)} />}
     </div>
   );
 }
@@ -1551,6 +1623,18 @@ function FieldEditor({ draft, field, allFieldIds, precedingFields, onPatch }) {
   }
 
   const optionsSource = field.dictionary ? "dictionary" : "options";
+  let formulaFeedback = null;
+  if (field.type === "calc") {
+    if (!field.compute?.trim()) formulaFeedback = { ok: false, text: "Введите формулу — без неё публикация будет заблокирована." };
+    else {
+      try {
+        const sample = Object.fromEntries(numericPrecedingIds.map((id) => [id, 10]));
+        formulaFeedback = { ok: true, text: `Формула корректна · тестовый результат: ${evalFormula(field.compute, sample)}` };
+      } catch (error) {
+        formulaFeedback = { ok: false, text: `Ошибка формулы: ${error.message}` };
+      }
+    }
+  }
 
   return (
     <div className="stack">
@@ -1676,6 +1760,9 @@ function FieldEditor({ draft, field, allFieldIds, precedingFields, onPatch }) {
           >
             <input className="input mono" value={field.compute || ""} onChange={(e) => onPatch({ compute: e.target.value })} />
           </Field>
+          <div className={`adm-inline-feedback ${formulaFeedback.ok ? "ok" : "error"}`}>
+            {formulaFeedback.ok ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />} {formulaFeedback.text}
+          </div>
           <Field label="Формат отображения">
             <select className="select" value={field.format || "number"} onChange={(e) => onPatch({ format: e.target.value })}>
               <option value="number">Число</option>
@@ -1855,6 +1942,12 @@ function WhenEditor({ field, precedingFields, onPatch }) {
               Нет полей выше по услуге — условие сослаться пока не на что.
             </p>
           )}
+          {precedingFields.length > 0 && (
+            <div className={`adm-inline-feedback ${buildWhen(state) ? "ok" : "error"}`}>
+              {buildWhen(state) ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />}
+              {buildWhen(state) ? "Условие собрано и сразу применяется в живом предпросмотре." : "Завершите условие: выберите поле, оператор и значение."}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -1878,6 +1971,23 @@ function ModalShell({ title, onClose, children, wide }) {
         <div className="adm-modal-body">{children}</div>
       </div>
     </div>
+  );
+}
+
+function PublishReceipt({ receipt, onClose }) {
+  const href = `/service/${receipt.id}`;
+  return (
+    <ModalShell title="Услуга опубликована" onClose={onClose}>
+      <div className="adm-publish-proof">
+        <CheckCircle2 size={38} />
+        <h3>Публичная версия доступна</h3>
+        <p className="muted">Версия {receipt.version} · {receipt.publishedAt}</p>
+        <code>{href}</code>
+        <a className="btn btn-gold" href={href} target="_blank" rel="noreferrer">
+          <ExternalLink size={15} /> Открыть опубликованную услугу
+        </a>
+      </div>
+    </ModalShell>
   );
 }
 
