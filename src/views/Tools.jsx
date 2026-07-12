@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { tools } from "../data/tools.js";
 import PageHero from "../shell/PageHero.jsx";
+import Link from "next/link";
 
 function formatMoney(n) {
   if (!n) return "";
@@ -328,6 +329,10 @@ export default function Tools({ notify, openAssistant }) {
         <button className="btn mod-nav-cta" onClick={() => openAssistant()}>
           Спросить навигатора
         </button>
+      </div>
+      <div className="mod-related-nav mod-related-nav-tools">
+        <div><span className="eyebrow">Проверить ориентиры</span><h3>Сравните расчёт с доступными мерами поддержки</h3></div>
+        <div className="mod-related-actions"><Link className="btn btn-ghost" href="/reports">Аналитика</Link><Link className="btn btn-primary" href="/catalog">Каталог мер</Link></div>
       </div>
     </div>
   );

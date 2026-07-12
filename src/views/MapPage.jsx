@@ -5,6 +5,7 @@ import { projects, projectStats } from "../data/projects.js";
 import { dictionaries } from "../data/dictionaries.js";
 import { KZ_OUTLINE } from "../data/kzOutline.js";
 import PageHero from "../shell/PageHero.jsx";
+import Link from "next/link";
 
 
 const ORG_COLOR_VAR = {
@@ -75,10 +76,15 @@ export default function MapPage({ notify }) {
 
   const regionCounts = useMemo(() => {
     const map = {};
-    filtered.forEach((p) => { map[p.region] = (map[p.region] || 0) + 1; });
+    filtered.forEach((p) => {
+      map[p.region] ||= { count: 0, amountMln: 0, jobs: 0 };
+      map[p.region].count += 1;
+      map[p.region].amountMln += p.amountMln;
+      map[p.region].jobs += p.jobs;
+    });
     const regionLabel = (v) => dictionaries.regions.find((r) => r.value === v)?.label || v;
     return Object.entries(map)
-      .map(([value, count]) => ({ value, label: regionLabel(value), count }))
+      .map(([value, stats]) => ({ value, label: regionLabel(value), ...stats }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 8);
   }, [filtered]);
@@ -274,11 +280,15 @@ export default function MapPage({ notify }) {
                   <span className="mod-region-track">
                     <span className="mod-region-fill" style={{ width: `${(r.count / maxRegionCount) * 100}%` }} />
                   </span>
-                  <span className="mod-region-val mono">{r.count}</span>
+                  <span className="mod-region-val mono"><b>{r.count}</b><small>{formatSum(r.amountMln)}</small></span>
                 </button>
               </div>
             ))}
             {regionCounts.length === 0 && <div className="mod-pc-empty">Нет проектов под текущие фильтры</div>}
+          </div>
+          <div className="mod-related-nav">
+            <div><span className="eyebrow">Изучить контекст</span><h3>Сопоставьте проекты с отраслевой аналитикой</h3></div>
+            <div className="mod-related-actions"><Link className="btn btn-ghost" href="/reports">Открыть аналитику</Link><Link className="btn btn-primary" href="/catalog">Подобрать поддержку</Link></div>
           </div>
         </div>
       </section>
