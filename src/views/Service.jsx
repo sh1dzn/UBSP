@@ -104,6 +104,7 @@ export default function Service({ go, route, openAssistant }) {
   const s = service;
   const card = s.card || {};
   const stages = s.stages || [];
+  const hasPreliminaryStage = stages.length > 1;
 
   return (
     <div className="container pub-section">
@@ -203,13 +204,17 @@ export default function Service({ go, route, openAssistant }) {
       {card.documents?.length > 0 && (
         <div className="pub-svc-block" style={{ marginBottom: 48 }}>
           <h2>Какие документы подготовить</h2>
-          <p className="muted pub-doc-intro">На первом этапе они не нужны. Оператор запросит их после первичной проверки заявки.</p>
+          <p className="muted pub-doc-intro">
+            {hasPreliminaryStage
+              ? "Полный пакет потребуется после предварительного этапа; оператор уточнит состав по результатам первичной проверки."
+              : "Подготовьте документы заранее. Оператор уточнит состав и момент предоставления при рассмотрении заявки."}
+          </p>
           <div className="pub-doc-list">
             {card.documents.map((d, i) => (
               <div key={i} className="pub-doc-item">
                 <FileText size={16} />
                 <span>{d}</span>
-                <span className="tag">на этапе полной заявки</span>
+                <span className="tag">{hasPreliminaryStage ? "после предварительного этапа" : "по запросу оператора"}</span>
               </div>
             ))}
           </div>
