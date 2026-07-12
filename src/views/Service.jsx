@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { ArrowRight, Check, FileText, ChevronDown, Sparkles } from "lucide-react";
+import { ArrowRight, Check, FileText, ChevronDown, Sparkles, AlertTriangle, Clock, Users, RotateCcw } from "lucide-react";
 import api from "../api.js";
 
 function Skeleton() {
@@ -29,6 +29,46 @@ function Faq({ item }) {
       </button>
       {open && <div className="pub-faq-a">{item.a}</div>}
     </div>
+  );
+}
+
+function SuitabilityCheck({ service }) {
+  const card = service.card || {};
+  const questions = (card.conditions || []).map((label, index) => ({ id: `condition-${index}`, label }));
+  const [audience, setAudience] = useState("");
+  const [answers, setAnswers] = useState({});
+  const answered = questions.filter((q) => answers[q.id]).length;
+  const mismatches = questions.filter((q) => answers[q.id] === "no");
+  const complete = Boolean(audience) && answered === questions.length;
+  const reset = () => { setAudience(""); setAnswers({}); };
+
+  if (!service.audience?.length || !questions.length) return null;
+  return (
+    <section className="pub-self-check" aria-labelledby="self-check-title">
+      <div className="pub-self-check-head">
+        <div><span className="eyebrow">До подачи заявки</span><h2 id="self-check-title">Подходит ли вам эта мера?</h2></div>
+        {(Boolean(audience) || answered > 0) && <button className="btn btn-ghost btn-sm" onClick={reset}><RotateCcw size={14} /> Начать заново</button>}
+      </div>
+      <p className="muted">Ответьте на несколько вопросов. Это предварительная проверка, а не решение оператора.</p>
+      <div className="pub-check-question">
+        <b>Ваша организационно-правовая форма</b>
+        <div className="pub-check-options">{service.audience.map((item) => <button key={item} className={audience === item ? "active" : ""} onClick={() => setAudience(item)}>{item}</button>)}</div>
+      </div>
+      {questions.map((q) => (
+        <div className="pub-check-question" key={q.id}>
+          <b>{q.label}</b>
+          <div className="pub-check-options">
+            <button className={answers[q.id] === "yes" ? "active" : ""} onClick={() => setAnswers((a) => ({ ...a, [q.id]: "yes" }))}>Да</button>
+            <button className={answers[q.id] === "no" ? "active negative" : ""} onClick={() => setAnswers((a) => ({ ...a, [q.id]: "no" }))}>Нет / не уверен</button>
+          </div>
+        </div>
+      ))}
+      {complete && (mismatches.length === 0 ? (
+        <div className="pub-check-result success"><Check size={20} /><div><b>Предварительно мера вам подходит</b><p>Можно переходить к заявке. Оператор проверит данные и документы после отправки.</p></div></div>
+      ) : (
+        <div className="pub-check-result warning"><AlertTriangle size={20} /><div><b>Есть {mismatches.length} {mismatches.length === 1 ? "возможное несоответствие" : "возможных несоответствия"}</b><p>Причины: {mismatches.map((q) => q.label.toLowerCase()).join("; ")}.</p><p>Вы всё равно можете подать заявку: окончательное решение принимает оператор.</p></div></div>
+      ))}
+    </section>
   );
 }
 
@@ -81,6 +121,7 @@ export default function Service({ go, route, openAssistant }) {
           </div>
           <h1>{s.title}</h1>
           <p className="pub-svc-summary">{s.summary}</p>
+          {s.audience?.length > 0 && <div className="pub-audience"><Users size={16} /><span><b>Для кого:</b> {s.audience.join(", ")}</span></div>}
           <button className="btn btn-ghost pub-explain-btn" onClick={() => openAssistant(`Объясни условия услуги ${s.title}`)}>
             <Sparkles size={16} /> Объяснить условия простым языком
           </button>
@@ -88,7 +129,7 @@ export default function Service({ go, route, openAssistant }) {
 
         <div className="card pub-apply-card">
           <h3 style={{ fontSize: 16, marginBottom: 4 }}>Подать заявку</h3>
-          <p className="small muted">Предварительная форма займёт немного времени</p>
+          <p className="small muted">Сначала — короткая предварительная форма</p>
           <div className="pub-apply-table">
             {card.amount && <div className="pub-apply-row"><span>Сумма</span><b className="mono">{card.amount}</b></div>}
             {card.term && <div className="pub-apply-row"><span>Срок</span><b className="mono">{card.term}</b></div>}
@@ -101,15 +142,18 @@ export default function Service({ go, route, openAssistant }) {
           <p className="pub-apply-note">
             ≈ 5–10 минут на первый этап · сохраняется черновик · вход через eGov (мок)
           </p>
+          <div className="pub-after-submit"><b>После отправки</b><span>Заявка появится в кабинете. Оператор проверит её, сообщит статус и запросит полный пакет документов при необходимости.</span></div>
         </div>
       </div>
+
+      <SuitabilityCheck service={s} />
 
       {stages.length > 1 && (
         <div className="pub-stages-wrap">
           <div className="pub-section-head">
             <div>
               <span className="eyebrow">Процесс</span>
-              <h2>Как проходит услуга</h2>
+              <h2>Этапы и что будет после отправки</h2>
             </div>
           </div>
           <div className="rail pub-rail-wide">
@@ -121,7 +165,7 @@ export default function Service({ go, route, openAssistant }) {
             ))}
           </div>
           <div className="pub-stages-note">
-            Сначала короткая предварительная заявка — полный пакет документов потребуется только после одобрения.
+            <Clock size={16} /> Ориентир до решения: {card.decisionDays || "уточняется"} {card.decisionDays ? "дней" : ""}. Сначала короткая предварительная заявка — полный пакет документов потребуется только после первичной проверки.
           </div>
         </div>
       )}
@@ -136,7 +180,7 @@ export default function Service({ go, route, openAssistant }) {
       <div className="pub-svc-grid">
         {card.conditions?.length > 0 && (
           <div className="pub-svc-block">
-            <h2>Условия</h2>
+            <h2>Критерии соответствия</h2>
             <ul className="pub-list-check">
               {card.conditions.map((c, i) => (
                 <li key={i}><Check size={16} />{c}</li>
@@ -158,7 +202,8 @@ export default function Service({ go, route, openAssistant }) {
 
       {card.documents?.length > 0 && (
         <div className="pub-svc-block" style={{ marginBottom: 48 }}>
-          <h2>Документы</h2>
+          <h2>Какие документы подготовить</h2>
+          <p className="muted pub-doc-intro">На первом этапе они не нужны. Оператор запросит их после первичной проверки заявки.</p>
           <div className="pub-doc-list">
             {card.documents.map((d, i) => (
               <div key={i} className="pub-doc-item">
