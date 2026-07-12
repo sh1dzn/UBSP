@@ -78,6 +78,7 @@ const MATCH_HINT =
 
 const EXPLAIN_HINT = /(объясни|что такое|поясни|расскажи|условия|простым языком|простыми словами)/i;
 const APPLY_HELP_HINT = /помоги с (шагом|заполнением|разделом)/i;
+const COMPARE_HINT = /(сравни|сравнить|чем отличается|разница между|что лучше)/i;
 
 function uid() {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -177,6 +178,16 @@ function buildApplyHelpTips(rawText) {
   return tips.slice(0, 3);
 }
 
+function serviceFacts(service) {
+  const card = service.card || {};
+  return [
+    card.amount && `сумма: ${card.amount}`,
+    card.rate && `ставка: ${card.rate}`,
+    card.term && `срок: ${card.term}`,
+    card.decisionDays && `решение: около ${card.decisionDays} дней`,
+  ].filter(Boolean);
+}
+
 export default function Assistant({ go, open, prompt, onClose, onOpen }) {
   const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState("");
@@ -217,7 +228,8 @@ export default function Assistant({ go, open, prompt, onClose, onOpen }) {
       } catch {
         return {
           text: "Не получилось получить подбор с сервера. Попробуйте ещё раз или откройте каталог напрямую.",
-          chips: [{ label: "Каталог мер", onClick: () => closeAndGo("/catalog") }],
+          chips: [{ label: "Каталог мер", path: "/catalog" }],
+          source: "rules",
         };
       }
       const enriched = matches
@@ -228,9 +240,14 @@ export default function Assistant({ go, open, prompt, onClose, onOpen }) {
 
       if (!top.length || maxScore < 30) {
         return {
-          text: "Точного совпадения не нашлось. Возможно, что-то подходящее найдётся в полном каталоге мер.",
-          chips: [{ label: "Открыть каталог", onClick: () => closeAndGo("/catalog") }],
+          text: "Пока данных недостаточно для обоснованной рекомендации. Уточните цель финансирования и хотя бы один параметр: отрасль, сумма или тип актива.",
+          chips: [
+            { label: "Кредит или гарантия", prompt: "Нужен кредит или гарантия для бизнеса" },
+            { label: "Лизинг техники", prompt: "Нужен лизинг техники или оборудования" },
+            { label: "Открыть каталог", path: "/catalog" },
+          ],
           disclaimer: true,
+          source: "rules",
         };
       }
 
@@ -244,9 +261,37 @@ export default function Assistant({ go, open, prompt, onClose, onOpen }) {
           reasons: (m.reasons || []).slice(0, 2),
         })),
         disclaimer: true,
+        source: "rules",
       };
     },
     [ensureServices, closeAndGo]
+  );
+
+  const handleCompare = useCallback(
+    async (rawText) => {
+      const services = await ensureServices();
+      const tokens = tokenize(rawText);
+      const ranked = services
+        .map((service) => ({ service, score: tokenize(`${service.title} ${(service.tags || []).join(" ")} ${service.kind || ""}`).filter((t) => tokens.some((q) => t.includes(q) || q.includes(t))).length }))
+        .filter((item) => item.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 2)
+        .map((item) => item.service);
+      if (ranked.length < 2) {
+        return {
+          text: "Чтобы сравнение было честным, назовите две меры или опишите задачу — например: «сравни лизинг вагонов и льготный кредит для покупки техники».",
+          chips: [{ label: "Выбрать меры в каталоге", path: "/catalog" }],
+          source: "rules",
+        };
+      }
+      const [first, second] = ranked;
+      return {
+        text: `Сравнение по опубликованным условиям:\n\n${first.title} (${first.org})\n${serviceFacts(first).join("; ") || "числовые условия не указаны"}.\n\n${second.title} (${second.org})\n${serviceFacts(second).join("; ") || "числовые условия не указаны"}.\n\nВыбор зависит от цели и соответствия условиям — это не прогноз одобрения.`,
+        matches: [first, second].map((s) => ({ serviceId: s.id, title: s.title, org: s.org, reasons: (s.card?.conditions || []).slice(0, 1) })),
+        source: "rules",
+      };
+    },
+    [ensureServices]
   );
 
   const handleExplain = useCallback(
@@ -257,6 +302,7 @@ export default function Assistant({ go, open, prompt, onClose, onOpen }) {
       if (svc) {
         return {
           text: buildExplainText(svc),
+          source: "rules",
           ctas: [
             { label: "Начать заявку", primary: true, onClick: () => closeAndGo(`/apply/${svc.id}`) },
             { label: "Открыть карточку услуги", onClick: () => closeAndGo(`/service/${svc.id}`) },
@@ -265,11 +311,12 @@ export default function Assistant({ go, open, prompt, onClose, onOpen }) {
       }
       const term = findTerm(rawText);
       if (term) {
-        return { text: `${term.title}. ${term.text}` };
+        return { text: `${term.title}. ${term.text}`, source: "rules" };
       }
       return {
         text: "Не нашёл подходящую услугу или термин по этому запросу. Можно посмотреть весь каталог или уточнить формулировку.",
-        chips: [{ label: "Каталог мер", onClick: () => closeAndGo("/catalog") }],
+        chips: [{ label: "Каталог мер", path: "/catalog" }],
+        source: "rules",
       };
     },
     [ensureServices, closeAndGo]
@@ -302,8 +349,10 @@ export default function Assistant({ go, open, prompt, onClose, onOpen }) {
       }
 
       if (APPLY_HELP_HINT.test(lower) || (/шаг/.test(lower) && /заявк/.test(lower))) {
-        return { text: "Вот пара конкретных советов по этому шагу:", tips: buildApplyHelpTips(rawText) };
+        return { text: "Вот конкретные действия для этого шага:", tips: buildApplyHelpTips(rawText), source: "rules" };
       }
+
+      if (COMPARE_HINT.test(lower)) return handleCompare(rawText);
 
       if (EXPLAIN_HINT.test(lower)) {
         return handleExplain(rawText);
@@ -314,15 +363,16 @@ export default function Assistant({ go, open, prompt, onClose, onOpen }) {
       }
 
       return {
-        text: "Пока не понял запрос точно. Загляните в каталог мер, посмотрите карту проектов или личный кабинет с заявками — там наверняка найдётся то, что нужно.",
+        text: "Уточните, пожалуйста, что нужно сделать: подобрать меру, сравнить две программы, объяснить условие или помочь с конкретным полем заявки.",
         chips: [
-          { label: "Каталог мер", onClick: () => closeAndGo("/catalog") },
-          { label: "Карта проектов", onClick: () => closeAndGo("/map") },
-          { label: "Личный кабинет", onClick: () => closeAndGo("/cabinet") },
+          { label: "Подобрать меру", prompt: "Подобрать меру поддержки" },
+          { label: "Сравнить программы", prompt: "Сравни две подходящие программы" },
+          { label: "Помочь с заявкой", prompt: "Помоги с заполнением заявки" },
         ],
+        source: "rules",
       };
     },
-    [handleExplain, handleMatch, closeAndGo]
+    [handleExplain, handleMatch, handleCompare, closeAndGo]
   );
 
   /* LLM-режим (OpenRouter): сервер собирает системный промпт из живых схем конструктора.
@@ -335,7 +385,7 @@ export default function Assistant({ go, open, prompt, onClose, onOpen }) {
       const res = await api.aiChat(payload);
       if (!res || res.fallback || !res.text) return null;
 
-      const reply = { text: res.text.replace(/\*\*/g, ""), llm: true };
+      const reply = { text: res.text.replace(/\*\*/g, ""), llm: true, source: "ai" };
       if (res.apply && res.apply.serviceId) {
         reply.apply = res.apply;
       }
@@ -369,10 +419,13 @@ export default function Assistant({ go, open, prompt, onClose, onOpen }) {
       setDraft("");
       setTyping(true);
       let reply = null;
-      try {
-        reply = await buildLlmReply(history);
-      } catch {
-        reply = null;
+      const useDeterministicFlow = COMPARE_HINT.test(trimmed) || APPLY_HELP_HINT.test(trimmed);
+      if (!useDeterministicFlow) {
+        try {
+          reply = await buildLlmReply(history);
+        } catch {
+          reply = null;
+        }
       }
       if (!reply) {
         const delay = 500 + Math.random() * 400;
@@ -384,14 +437,12 @@ export default function Assistant({ go, open, prompt, onClose, onOpen }) {
     [buildLlmReply, buildReply]
   );
 
-  const handleSuggestion = useCallback((text) => send(text), [send]);
-
   const clearChat = useCallback(() => {
     try { window.localStorage.removeItem(HISTORY_KEY); } catch {}
     setMessages([
-      { id: uid(), role: "assistant", text: GREETING, chips: SUGGESTIONS.map((s) => ({ label: s, onClick: () => handleSuggestion(s) })) },
+      { id: uid(), role: "assistant", text: GREETING, chips: SUGGESTIONS.map((s) => ({ label: s, prompt: s })) },
     ]);
-  }, [handleSuggestion]);
+  }, []);
 
   /* восстановление истории при первом открытии */
   useEffect(() => {
@@ -421,6 +472,9 @@ export default function Assistant({ go, open, prompt, onClose, onOpen }) {
         matches: m.matches,
         tips: m.tips,
         disclaimer: m.disclaimer,
+        source: m.source,
+        apply: m.apply,
+        chips: m.chips?.map(({ label, path, prompt }) => ({ label, path, prompt })),
       }));
       window.localStorage.setItem(HISTORY_KEY, JSON.stringify(plain));
     } catch {
@@ -436,7 +490,7 @@ export default function Assistant({ go, open, prompt, onClose, onOpen }) {
           id: uid(),
           role: "assistant",
           text: GREETING,
-          chips: SUGGESTIONS.map((s) => ({ label: s, onClick: () => handleSuggestion(s) })),
+          chips: SUGGESTIONS.map((s) => ({ label: s, prompt: s })),
         },
       ]);
       setGreeted(true);
@@ -516,6 +570,11 @@ export default function Assistant({ go, open, prompt, onClose, onOpen }) {
           <div key={m.id} className={"ai-msg " + (m.role === "user" ? "ai-msg-user" : "ai-msg-assistant")}>
             <div className="ai-bubble">
               {m.text ? <p>{m.text}</p> : null}
+              {m.role === "assistant" && m.source ? (
+                <span className={`ai-source ai-source-${m.source}`}>
+                  {m.source === "ai" ? "Ответ ИИ по данным портала" : "Проверено правилами портала"}
+                </span>
+              ) : null}
 
               {m.tips ? (
                 <ul className="ai-tips">
@@ -534,7 +593,7 @@ export default function Assistant({ go, open, prompt, onClose, onOpen }) {
                           <div className="ai-match-title">{item.title}</div>
                           <div className="ai-match-org muted small">{item.org}</div>
                         </div>
-                        <span className="chip chip-gold">совпадение {item.score}%</span>
+                        {Number.isFinite(item.score) ? <span className="chip chip-gold">совпадение {item.score}%</span> : null}
                       </div>
                       {item.reasons?.length ? (
                         <ul className="ai-match-reasons">
@@ -588,7 +647,7 @@ export default function Assistant({ go, open, prompt, onClose, onOpen }) {
               {m.chips?.length ? (
                 <div className="ai-chips">
                   {m.chips.map((c, i) => (
-                    <button key={i} className="chip chip-line ai-chip" onClick={c.onClick}>
+                    <button key={i} className="chip chip-line ai-chip" onClick={c.onClick || (() => c.path ? closeAndGo(c.path) : c.prompt ? send(c.prompt) : null)}>
                       {c.label}
                     </button>
                   ))}

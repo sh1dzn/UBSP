@@ -420,7 +420,7 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
         <div className="card fr-sidebar-card">
           <div className="fr-sidebar-title">Предпроверка заявки</div>
           <p className="fr-review-hint">
-            ИИ сверит ответы с условиями программы до отправки — меньше шансов получить запрос уточнений.
+            Сначала портал проверит обязательные поля и правила программы. Если ИИ доступен, он дополнительно объяснит результат.
           </p>
           <button
             type="button"
@@ -438,10 +438,11 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
               }
             }}
           >
-            {reviewing ? "Проверяем…" : "Проверить заявку с ИИ"}
+            {reviewing ? "Проверяем…" : "Проверить готовность заявки"}
           </button>
           {review ? (
             <div className={"fr-review-result" + (review.ok ? " ok" : "")}>
+              <div className="fr-review-source">{review.source === "ai" ? "Пояснение ИИ · проверки по правилам" : "Детерминированная проверка по правилам"}</div>
               <p>{review.summary}</p>
               {review.issues?.length ? (
                 <ul>

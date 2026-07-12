@@ -58,7 +58,7 @@ export async function POST(request) {
   const base = localReview(service, stage, answers);
 
   const key = process.env.OPENROUTER_API_KEY;
-  if (!key) return Response.json(base);
+  if (!key) return Response.json({ ...base, source: "rules" });
 
   // LLM-надстройка: человеческое объяснение поверх детерминированных проверок
   try {
@@ -85,10 +85,10 @@ export async function POST(request) {
     if (res.ok) {
       const data = await res.json();
       const text = data.choices?.[0]?.message?.content?.trim();
-      if (text) return Response.json({ ...base, summary: text, llm: true });
+      if (text) return Response.json({ ...base, summary: text, llm: true, source: "ai" });
     }
   } catch {
     // LLM недоступен — детерминированного результата достаточно
   }
-  return Response.json(base);
+  return Response.json({ ...base, source: "rules", fallback: true });
 }
