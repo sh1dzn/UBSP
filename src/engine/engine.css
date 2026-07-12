@@ -24,6 +24,13 @@
 
 .fr-step-head { margin-bottom: 20px; }
 .fr-step-head h2 { font-size: 20px; margin-bottom: 6px; }
+.fr-branch-note {
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  margin: -6px 0 18px; padding: 9px 12px; border-left: 3px solid var(--sky);
+  border-radius: 0 var(--r) var(--r) 0; background: var(--sky-soft);
+  color: var(--muted); font-size: 12.5px;
+}
+.fr-branch-note-label { color: var(--sky-deep); font-weight: 700; }
 
 .fr-field { display: flex; flex-direction: column; }
 
