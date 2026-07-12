@@ -33,7 +33,7 @@ function statusChipClass(status) {
 
 const KIND_LABEL = { user: "Вы", system: "Система", org: "Организация" };
 
-export default function Cabinet({ go, notify, openAssistant }) {
+export default function Cabinet({ go, route, notify, openAssistant }) {
   const { user, ready } = useAuth();
   const [applications, setApplications] = useState(null);
   const [notifications, setNotifications] = useState(null);
@@ -49,7 +49,7 @@ export default function Cabinet({ go, notify, openAssistant }) {
       const apps = appsRes.applications || [];
       setApplications(apps);
       setNotifications(notifRes.notifications || []);
-      setSelectedId((prev) => prev || (apps[0] ? apps[0].id : null));
+      setSelectedId((prev) => route?.query?.app || prev || (apps[0] ? apps[0].id : null));
 
       const uniqueServiceIds = [...new Set(apps.map((a) => a.serviceId))];
       const pairs = await Promise.all(
@@ -66,7 +66,7 @@ export default function Cabinet({ go, notify, openAssistant }) {
     } catch (err) {
       setLoadError(err.message);
     }
-  }, []);
+  }, [route?.query?.app]);
 
   useEffect(() => {
     loadData();
@@ -83,7 +83,10 @@ export default function Cabinet({ go, notify, openAssistant }) {
     try {
       const updated = await api.advanceApplication(selected.id);
       await loadData();
-      notify?.("Статус обновлён", updated.statusLabel);
+      notify?.(
+        updated.nextStage ? "Этап одобрен — открылся следующий шаг" : "Статус обновлён",
+        updated.nextStage ? `Нажмите «Продолжить оформление»: ${updated.nextStage.title}` : updated.statusLabel
+      );
     } catch (err) {
       notify?.("Не удалось выполнить шаг BPM", err.message);
     } finally {
@@ -141,6 +144,13 @@ export default function Cabinet({ go, notify, openAssistant }) {
           </div>
         </div>
       </PageHero>
+
+      {route?.query?.demo === "1" && (
+        <div className="pub-demo-context cab-demo-context">
+          <span className="chip chip-gold">Демо · шаг 4 из 7</span>
+          <span>Заявка выбрана. Симулируйте решения BPM, пока не появится кнопка второго этапа.</span>
+        </div>
+      )}
 
       <div className="cab-tabs row">
         <button
@@ -202,9 +212,10 @@ export default function Cabinet({ go, notify, openAssistant }) {
                 app={selected}
                 onContinue={() =>
                   go(
-                    `/apply/${selected.serviceId}?app=${selected.id}&stage=${selected.nextStage.id}`
+                    `/apply/${selected.serviceId}?app=${selected.id}&stage=${selected.nextStage.id}&demo=1`
                   )
                 }
+                onOpenConstructor={() => go("/login?next=/admin")}
                 onAdvance={handleAdvance}
                 advancing={advancing}
                 notify={notify}
@@ -254,7 +265,7 @@ function ApplicationListCard({ app, stages, active, onClick }) {
   );
 }
 
-function ApplicationDetail({ app, onContinue, onAdvance, advancing, notify, onExplainStatus }) {
+function ApplicationDetail({ app, onContinue, onAdvance, onOpenConstructor, advancing, notify, onExplainStatus }) {
   const timeline = [...(app.timeline || [])].reverse();
   return (
     <div className="stack">
@@ -285,6 +296,19 @@ function ApplicationDetail({ app, onContinue, onAdvance, advancing, notify, onEx
             </p>
             <button className="btn btn-gold" onClick={onContinue}>
               Продолжить оформление <ArrowRight size={15} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {app.status === "approved" && (
+        <div className="cab-next-stage cab-demo-finish">
+          <Sparkles size={18} />
+          <div className="cab-next-stage-body">
+            <div className="cab-next-stage-title">Путь предпринимателя завершён</div>
+            <p className="muted small">Теперь покажите обратную сторону платформы: эта услуга собрана из схемы в no-code конструкторе.</p>
+            <button className="btn btn-gold" onClick={onOpenConstructor}>
+              Перейти в конструктор <ArrowRight size={15} />
             </button>
           </div>
         </div>
@@ -358,9 +382,13 @@ function ApplicationDetail({ app, onContinue, onAdvance, advancing, notify, onEx
 
       <div className="cab-demo-panel">
         <p className="muted small cab-demo-caption">
-          Демонстрация: имитация решения BPM дочерней организации
+          {app.nextStage
+            ? "Следующий этап уже открыт — продолжите оформление выше"
+            : app.status === "approved"
+              ? "Демо заявки завершено — переходите в конструктор выше"
+              : "Демонстрация: имитация следующего решения BPM дочерней организации"}
         </p>
-        <button className="btn btn-primary" onClick={onAdvance} disabled={advancing}>
+        <button className="btn btn-primary" onClick={onAdvance} disabled={advancing || !!app.nextStage || app.status === "approved"}>
           <PlayCircle size={16} /> {advancing ? "Выполняется…" : "Симулировать шаг BPM"}
         </button>
       </div>

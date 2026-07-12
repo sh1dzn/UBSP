@@ -73,6 +73,13 @@ export default function Service({ go, route, openAssistant }) {
         <button onClick={() => go(`/catalog?kind=${encodeURIComponent(s.kind)}`)}>{s.kind}</button>
       </div>
 
+      {s.id === "wagons-leasing" && (
+        <div className="pub-demo-context">
+          <span className="chip chip-gold">Демо · шаг 2 из 7</span>
+          <span>AI подобрал услугу. Проверьте условия и начните предварительную заявку.</span>
+        </div>
+      )}
+
       <div className="pub-svc-head">
         <div>
           <div className="pub-svc-chips">
@@ -95,7 +102,7 @@ export default function Service({ go, route, openAssistant }) {
             {card.rate && <div className="pub-apply-row"><span>Ставка</span><b className="mono">{card.rate}</b></div>}
             {card.decisionDays && <div className="pub-apply-row"><span>Решение</span><b className="mono">{card.decisionDays} дней</b></div>}
           </div>
-          <button className="btn btn-gold btn-lg" onClick={() => go(`/apply/${s.id}`)}>
+          <button className="btn btn-gold btn-lg" onClick={() => go(`/apply/${s.id}?demo=1`)}>
             Начать заявку <ArrowRight size={16} />
           </button>
           <p className="pub-apply-note">
