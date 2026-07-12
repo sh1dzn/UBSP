@@ -197,9 +197,22 @@
 .mod-registry-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--card); }
 .mod-registry-wrap .registry { min-width: 520px; }
 
-.mod-cta-band { margin-top: 32px; padding: 28px; border-radius: var(--r-lg); background: var(--ink-2); color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.mod-cta-band { margin-top: 32px; margin-bottom: 48px; padding: 28px; border-radius: var(--r-lg); background: var(--ink-2); color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .mod-cta-band h3 { color: #fff; font-size: 18px; margin-bottom: 4px; }
 .mod-cta-band p { color: #a9b7c2; font-size: 13.5px; }
+.mod-nav-cta {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 8px;
+  color: #fff;
+  box-shadow: none;
+  font-weight: 600;
+}
+.mod-nav-cta:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.58);
+  box-shadow: none;
+}
 
 /* статистика в фото-шапке */
 .page-hero .mod-hero-stats.on-dark {

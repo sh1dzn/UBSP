@@ -123,10 +123,6 @@ export default function Home({ go, notify, openAssistant }) {
             <img src="/assets/dir-fields.jpg" alt="Субсидирование АПК" loading="lazy" />
             <figcaption><span className="mono">01</span><b>Субсидирование</b></figcaption>
           </figure>
-          <div className="pub-gallery-arrows" aria-hidden="true">
-            <span className="pub-arrow-circle"><ArrowRight size={15} /></span>
-            <span className="pub-arrow-circle lime"><ArrowRight size={15} /></span>
-          </div>
         </div>
 
         <div className="pub-gallery-col offset">

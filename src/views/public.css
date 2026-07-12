@@ -345,9 +345,8 @@
 .pub-cat-card:hover .pub-cat-icon { background: var(--ink-2); color: var(--gold); }
 .pub-cat-icon { transition: background 0.2s, color 0.2s; }
 
-.pub-service-card { border-top: 3px solid var(--sky); }
-.pub-service-card:nth-child(3n+2) { border-top-color: var(--gold); }
-.pub-service-card:nth-child(3n) { border-top-color: var(--green); }
+.pub-service-card { border-top: none; }
+.pub-service-card.card-hover:hover { border-color: var(--line); }
 
 /* тёмная секция экосистемы */
 .pub-eco .eyebrow.on-dark { color: #9fb0bd; }
@@ -536,7 +535,7 @@
   .pub-search input { font-size: 14px; padding: 9px 4px; }
   .pub-search-btn { padding: 10px 12px; }
   .pub-search-btn span { display: none; }
-  .pub-section { padding: 40px 0; }
+  .pub-section { padding: 40px 20px; }
   .pub-section-head { display: block; margin-bottom: 20px; }
   .pub-section-head .btn { margin-top: 14px; }
   .pub-mini-table { grid-template-columns: 1fr; }

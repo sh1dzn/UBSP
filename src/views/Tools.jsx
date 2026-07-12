@@ -325,7 +325,7 @@ export default function Tools({ notify, openAssistant }) {
           <h3>Не нашли нужное?</h3>
           <p>Навигатор подскажет меру поддержки и инструмент под вашу задачу.</p>
         </div>
-        <button className="btn btn-gold" onClick={() => openAssistant()}>
+        <button className="btn mod-nav-cta" onClick={() => openAssistant()}>
           Спросить навигатора
         </button>
       </div>
