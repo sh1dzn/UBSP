@@ -2,14 +2,18 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
+  AlertTriangle,
   Bell,
   Building2,
   Download,
   FileCheck2,
+  FileWarning,
+  Clock3,
   MessageCircleQuestion,
   PlayCircle,
   ShieldCheck,
   Sparkles,
+  Upload,
   User2,
 } from "lucide-react";
 import api from "../api.js";
@@ -41,6 +45,9 @@ export default function Cabinet({ go, notify, openAssistant }) {
   const [selectedId, setSelectedId] = useState(null);
   const [tab, setTab] = useState("applications"); // applications | notifications
   const [advancing, setAdvancing] = useState(false);
+  const [correctionFiles, setCorrectionFiles] = useState({});
+  const [submittingCorrection, setSubmittingCorrection] = useState(false);
+  const [focusSection, setFocusSection] = useState(null);
   const [loadError, setLoadError] = useState(null);
 
   const loadData = useCallback(async () => {
@@ -95,6 +102,26 @@ export default function Cabinet({ go, notify, openAssistant }) {
     if (n.appId) {
       setSelectedId(n.appId);
       setTab("applications");
+      setFocusSection(n.target?.section || null);
+      window.setTimeout(() => {
+        document.getElementById(`cab-${n.target?.section || "application"}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 0);
+    }
+  }
+
+  async function handleCorrectionSubmit() {
+    if (!selected?.infoRequest) return;
+    setSubmittingCorrection(true);
+    try {
+      const files = selected.infoRequest.items.map((item) => ({ itemId: item.id, name: correctionFiles[item.id].name, size: correctionFiles[item.id].size }));
+      const updated = await api.submitCorrection(selected.id, { files });
+      await loadData();
+      setCorrectionFiles({});
+      notify?.("Уточнения отправлены", updated.statusLabel);
+    } catch (err) {
+      notify?.("Не удалось отправить уточнения", err.message);
+    } finally {
+      setSubmittingCorrection(false);
     }
   }
 
@@ -208,6 +235,11 @@ export default function Cabinet({ go, notify, openAssistant }) {
                 onAdvance={handleAdvance}
                 advancing={advancing}
                 notify={notify}
+                correctionFiles={correctionFiles}
+                onCorrectionFile={(itemId, file) => setCorrectionFiles((current) => ({ ...current, [itemId]: file }))}
+                onSubmitCorrection={handleCorrectionSubmit}
+                submittingCorrection={submittingCorrection}
+                focusSection={focusSection}
                 onExplainStatus={() =>
                   openAssistant(
                     `Объясни статус заявки ${selected.id} («${selected.statusLabel}») по услуге «${selected.serviceTitle}». Что мне делать дальше?`
@@ -254,7 +286,7 @@ function ApplicationListCard({ app, stages, active, onClick }) {
   );
 }
 
-function ApplicationDetail({ app, onContinue, onAdvance, advancing, notify, onExplainStatus }) {
+function ApplicationDetail({ app, onContinue, onAdvance, advancing, notify, onExplainStatus, correctionFiles, onCorrectionFile, onSubmitCorrection, submittingCorrection, focusSection }) {
   const timeline = [...(app.timeline || [])].reverse();
   return (
     <div className="stack">
@@ -271,6 +303,17 @@ function ApplicationDetail({ app, onContinue, onAdvance, advancing, notify, onEx
           <Building2 size={13} /> {app.org}
         </div>
       </div>
+
+      {app.status === "info_requested" && app.infoRequest?.status === "open" && (
+        <CorrectionRequest
+          request={app.infoRequest}
+          files={correctionFiles}
+          onFile={onCorrectionFile}
+          onSubmit={onSubmitCorrection}
+          submitting={submittingCorrection}
+          focused={focusSection === "correction"}
+        />
+      )}
 
       {app.nextStage && (
         <div className="cab-next-stage">
@@ -312,7 +355,7 @@ function ApplicationDetail({ app, onContinue, onAdvance, advancing, notify, onEx
         </div>
       </div>
 
-      <div className="card">
+      <div className="card" id="cab-documents">
         <h3 className="cab-block-title">Документы</h3>
         {app.documents && app.documents.length > 0 ? (
           <table className="registry">
@@ -335,7 +378,7 @@ function ApplicationDetail({ app, onContinue, onAdvance, advancing, notify, onEx
                   <td className="mono small">{doc.size}</td>
                   <td>
                     <div className="row">
-                      <span className="chip chip-green">Проверен</span>
+                      <DocumentStatus status={doc.status} />
                       {doc.signedBy && <span className="chip chip-gold">ЭЦП</span>}
                     </div>
                   </td>
@@ -365,6 +408,68 @@ function ApplicationDetail({ app, onContinue, onAdvance, advancing, notify, onEx
         </button>
       </div>
     </div>
+  );
+}
+
+const DOCUMENT_STATUS = {
+  verified: ["Проверен", "chip-green"],
+  correction_required: ["Нужно заменить", "chip-amber"],
+  under_review: ["На проверке", "chip-gold"],
+  replaced: ["Заменён", ""],
+};
+
+function DocumentStatus({ status }) {
+  const [label, className] = DOCUMENT_STATUS[status] || ["Получен", ""];
+  return <span className={`chip ${className}`.trim()}>{label}</span>;
+}
+
+function CorrectionRequest({ request, files, onFile, onSubmit, submitting, focused }) {
+  const complete = request.items.every((item) => files[item.id]);
+  const deadline = new Date(`${request.deadline}T12:00:00`).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
+  return (
+    <section id="cab-correction" className={`cab-correction ${focused ? "cab-correction-focus" : ""}`} aria-labelledby="cab-correction-title">
+      <div className="cab-correction-head">
+        <div className="cab-correction-icon"><AlertTriangle size={20} /></div>
+        <div>
+          <span className="eyebrow">Требуется ваше действие</span>
+          <h2 id="cab-correction-title">Предоставьте дополнительные сведения</h2>
+          <div className="cab-deadline"><Clock3 size={15} /> Отправьте до {deadline}</div>
+        </div>
+      </div>
+      <div className="cab-request-reason">
+        <strong>Почему это нужно</strong>
+        <p>{request.reason}</p>
+      </div>
+      <div className="cab-correction-items">
+        {request.items.map((item, index) => {
+          const file = files[item.id];
+          return (
+            <div className="cab-correction-item" key={item.id}>
+              <div className="cab-correction-step">{index + 1}</div>
+              <div className="cab-correction-copy">
+                <div className="cab-correction-title"><FileWarning size={16} /> {item.title}</div>
+                <p className="muted small">{item.description}</p>
+                {item.documentName && <div className="cab-current-file">Текущий файл: <span className="mono">{item.documentName}</span></div>}
+              </div>
+              <label className={`btn btn-sm ${file ? "btn-ghost cab-file-ready" : "btn-primary"}`}>
+                <Upload size={15} /> {file ? file.name : item.action === "replace" ? "Выбрать замену" : "Выбрать файл"}
+                <input className="cab-file-input" type="file" accept={item.acceptedTypes} onChange={(event) => event.target.files?.[0] && onFile(item.id, event.target.files[0])} />
+              </label>
+            </div>
+          );
+        })}
+      </div>
+      <div className="cab-correction-footer">
+        <div>
+          <strong>Следующий шаг</strong>
+          <p className="muted small">Прикрепите оба файла и отправьте их эксперту. Новую заявку создавать не нужно.</p>
+          <span className="muted small">{request.contact}</span>
+        </div>
+        <button className="btn btn-gold" disabled={!complete || submitting} onClick={onSubmit}>
+          {submitting ? "Отправляем…" : "Отправить уточнения"} <ArrowRight size={15} />
+        </button>
+      </div>
+    </section>
   );
 }
 
