@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Bot, ChevronDown, LogOut, Menu, Phone, ShieldCheck, UserRound, X } from "lucide-react";
@@ -15,6 +15,8 @@ const NAV = [
   { path: "/cabinet", label: "Личный кабинет" },
 ];
 
+const KK_NAV = ["Қолдау шаралары", "Жобалар картасы", "Талдау", "Құралдар", "Жеке кабинет"];
+
 export default function PortalShell({ children }) {
   const pathname = usePathname() || "/";
   const router = useRouter();
@@ -23,7 +25,34 @@ export default function PortalShell({ children }) {
   const [assistantPrompt, setAssistantPrompt] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [locale, setLocaleState] = useState("ru");
+  const menuButtonRef = useRef(null);
   const auth = useAuthState();
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("eppb-locale");
+    if (saved === "kk") setLocaleState("kk");
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    window.localStorage.setItem("eppb-locale", locale);
+  }, [locale]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const close = (event) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", close);
+    return () => document.removeEventListener("keydown", close);
+  }, [menuOpen]);
+
+  const setLocale = useCallback((next) => setLocaleState(next === "kk" ? "kk" : "ru"), []);
+  const nav = NAV.map((item, index) => ({ ...item, label: locale === "kk" ? KK_NAV[index] : item.label }));
 
   const notify = useCallback((title, text) => {
     const id = Math.random().toString(36).slice(2);
@@ -41,8 +70,9 @@ export default function PortalShell({ children }) {
 
   return (
     <AuthContext.Provider value={auth}>
-    <PortalContext.Provider value={{ notify, openAssistant }}>
+    <PortalContext.Provider value={{ notify, openAssistant, locale, setLocale }}>
       <div className="app-shell">
+        <a className="skip-link" href="#main-content">{locale === "kk" ? "Негізгі мазмұнға өту" : "Перейти к основному содержанию"}</a>
         <header className={"site-header" + (isHome ? " over-hero" : "")}>
           <div className="container site-header-inner">
             <Link href="/" className="brand" onClick={() => setMenuOpen(false)}>
@@ -54,8 +84,8 @@ export default function PortalShell({ children }) {
                 <span>Единый портал поддержки бизнеса</span>
               </span>
             </Link>
-            <nav className={"site-nav" + (menuOpen ? " open" : "")}>
-              {NAV.map((item) => (
+            <nav id="primary-navigation" aria-label={locale === "kk" ? "Негізгі навигация" : "Основная навигация"} className={"site-nav" + (menuOpen ? " open" : "")}>
+              {nav.map((item) => (
                 <Link
                   key={item.path}
                   href={item.path}
@@ -70,10 +100,14 @@ export default function PortalShell({ children }) {
                 className={"nav-admin" + (isAdmin ? " active" : "")}
                 onClick={() => setMenuOpen(false)}
               >
-                Администрирование
+                {locale === "kk" ? "Әкімшілендіру" : "Администрирование"}
               </Link>
             </nav>
             <div className="header-actions">
+              <div className="language-switch" role="group" aria-label={locale === "kk" ? "Интерфейс тілі" : "Язык интерфейса"}>
+                <button type="button" aria-pressed={locale === "kk"} aria-label="Қазақша (демо-нұсқа)" onClick={() => setLocale("kk")}>Қаз</button>
+                <button type="button" aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>Рус</button>
+              </div>
               {auth.user ? (
                 <div className="user-menu-wrap">
                   <button
@@ -113,8 +147,11 @@ export default function PortalShell({ children }) {
                 <Bot size={16} /> <span className="assistant-label">Навигатор</span>
               </button>
               <button
+                ref={menuButtonRef}
                 className="btn btn-sm menu-toggle"
-                aria-label="Меню"
+                aria-label={locale === "kk" ? "Мәзір" : "Меню"}
+                aria-expanded={menuOpen}
+                aria-controls="primary-navigation"
                 onClick={() => setMenuOpen((v) => !v)}
               >
                 {menuOpen ? <X size={16} /> : <Menu size={16} />}
@@ -123,7 +160,10 @@ export default function PortalShell({ children }) {
           </div>
         </header>
 
-        <main>{children}</main>
+        <main id="main-content" tabIndex="-1">
+          {locale === "kk" ? <div className="locale-scope" role="status">Қазақша демо: негізгі навигация аударылды. Қызметтер мен өтінімдер әзірге орыс тілінде.</div> : null}
+          {children}
+        </main>
 
         {!isAdmin && (
           <footer className="site-footer">
@@ -146,7 +186,7 @@ export default function PortalShell({ children }) {
               <div className="footer-cols">
                 <div>
                   <h4>Портал</h4>
-                  {NAV.map((item) => (
+                  {nav.map((item) => (
                     <Link key={item.path} href={item.path}>{item.label}</Link>
                   ))}
                 </div>
@@ -175,7 +215,7 @@ export default function PortalShell({ children }) {
           onOpen={() => openAssistant()}
         />
 
-        <div className="toast-zone">
+        <div className="toast-zone" role="status" aria-live="polite" aria-atomic="true">
           {toasts.map((t) => (
             <div key={t.id} className="toast">
               <b>{t.title}</b>
