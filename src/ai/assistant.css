@@ -133,6 +133,13 @@
 }
 .ai-bubble p { margin: 0; white-space: pre-wrap; }
 .ai-bubble p + * { margin-top: 10px; }
+.ai-source {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 10.5px;
+  color: var(--muted);
+}
+.ai-source-ai { color: var(--sky-deep); }
 
 .ai-msg-user .ai-bubble {
   background: var(--sky-soft);
