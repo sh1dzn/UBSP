@@ -18,6 +18,7 @@ export default function Apply({ go, route, notify, openAssistant }) {
   const serviceId = route.params?.id;
   const appId = route.query?.app || null;
   const requestedStage = route.query?.stage || null;
+  const demoMode = route.query?.demo === "1";
 
   const { user, ready, signIn } = useAuth();
   const authed = !!user;
@@ -193,8 +194,8 @@ export default function Apply({ go, route, notify, openAssistant }) {
           </div>
 
           <div className="row cab-success-actions">
-            <button className="btn btn-primary" onClick={() => go("/cabinet")}>
-              В личный кабинет
+            <button className="btn btn-primary" onClick={() => go(`/cabinet?app=${result.id}${demoMode ? "&demo=1" : ""}`)}>
+              Открыть эту заявку в кабинете
             </button>
             <button className="btn btn-ghost" onClick={() => go("/")}>
               На главную
@@ -219,6 +220,12 @@ export default function Apply({ go, route, notify, openAssistant }) {
           <ArrowLeft size={15} /> К странице услуги
         </a>
         <span className="eyebrow">Подача заявки</span>
+        {demoMode && (
+          <div className="pub-demo-context">
+            <span className="chip chip-gold">Демо · {appId ? "шаг 6 из 7" : "шаг 3 из 7"}</span>
+            <span>{appId ? "Заполните второй этап и снова отправьте заявку." : "Войдите через eGov (мок), заполните и подпишите форму."}</span>
+          </div>
+        )}
         <h1>{service.title}</h1>
         <div className="row cab-apply-chips">
           <span className="chip">

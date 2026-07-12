@@ -354,6 +354,18 @@
   gap: 8px;
   margin-bottom: 14px;
 }
+.adm-readiness { display: flex; align-items: center; gap: 5px; margin-top: 5px; font-size: 11px; font-weight: 600; }
+.adm-readiness.ready { color: var(--green); }
+.adm-readiness.has-errors { color: var(--red); }
+
+.adm-inline-feedback { display: flex; align-items: flex-start; gap: 6px; margin-top: 8px; padding: 8px 10px; border-radius: 8px; font-size: 12px; }
+.adm-inline-feedback.ok { color: var(--green); background: var(--green-soft); }
+.adm-inline-feedback.error { color: var(--red); background: var(--red-soft); }
+.adm-inline-feedback svg { flex: none; margin-top: 1px; }
+
+.adm-publish-proof { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 12px 8px 4px; }
+.adm-publish-proof > svg { color: var(--green); }
+.adm-publish-proof code { width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
 .adm-preview-stages { display: flex; flex-wrap: wrap; gap: 6px; }
 .adm-preview-stages .chip { cursor: pointer; border: none; }
 
@@ -519,3 +531,5 @@
 .adm-dictionary[open] summary { border-bottom: 1px solid var(--line); margin-bottom: 12px; }
 .adm-dict-row { display: grid; grid-template-columns: minmax(150px, .7fr) 1.5fr auto; gap: 8px; }
 @media (max-width: 760px) { .adm-settings-grid { grid-template-columns: 1fr; } .adm-dict-row { grid-template-columns: 1fr; } }
+.adm-branch-reasons { display: flex; flex-wrap: wrap; gap: 5px; max-width: 360px; }
+.adm-branch-reasons .chip { white-space: normal; text-align: left; line-height: 1.25; }

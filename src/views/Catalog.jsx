@@ -177,6 +177,7 @@ export default function Catalog({ go, route, openAssistant }) {
                   </div>
                   <h3>{s.title}</h3>
                   <p className="pub-summary">{s.summary}</p>
+                  {s.audience?.length > 0 && <p className="pub-card-audience"><b>Для кого:</b> {s.audience.join(", ")}</p>}
                   <div className="pub-mini-table">
                     {s.card?.amount && (
                       <div className="pub-mini-item"><span>Сумма</span><b className="mono">{s.card.amount}</b></div>
@@ -191,6 +192,7 @@ export default function Catalog({ go, route, openAssistant }) {
                       <div className="pub-mini-item"><span>Решение</span><b className="mono">{s.card.decisionDays} дн.</b></div>
                     )}
                   </div>
+                  {s.card?.resultText && <p className="pub-card-outcome"><b>Результат:</b> {s.card.resultText}</p>}
                   {s.tags?.length > 0 && (
                     <div className="row" style={{ flexWrap: "wrap", gap: 6 }}>
                       {s.tags.map((t) => <span key={t} className="chip chip-line">{t}</span>)}

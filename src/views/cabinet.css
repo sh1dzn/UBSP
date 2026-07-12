@@ -314,6 +314,51 @@
   margin-bottom: 14px;
 }
 
+/* ---------- targeted correction request ---------- */
+.cab-correction {
+  scroll-margin-top: 84px;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid color-mix(in srgb, var(--gold) 55%, var(--line));
+  border-radius: var(--r-lg);
+  box-shadow: 0 8px 28px rgba(32, 43, 54, 0.06);
+}
+.cab-correction-focus { box-shadow: 0 0 0 3px var(--gold-soft), 0 8px 28px rgba(32, 43, 54, 0.08); }
+.cab-correction-head {
+  display: flex;
+  gap: 14px;
+  padding: 20px;
+  background: var(--gold-soft);
+  border-bottom: 1px solid color-mix(in srgb, var(--gold) 35%, var(--line));
+}
+.cab-correction-head h2 { margin: 3px 0 8px; font-size: 19px; }
+.cab-correction-icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  border-radius: 50%;
+  color: var(--gold-deep);
+  background: var(--card);
+}
+.cab-deadline { display: flex; align-items: center; gap: 6px; color: var(--gold-deep); font-size: 13px; font-weight: 700; }
+.cab-request-reason { padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.cab-request-reason strong, .cab-correction-footer strong { font-size: 13px; }
+.cab-request-reason p { margin: 5px 0 0; font-size: 13.5px; line-height: 1.55; }
+.cab-correction-items { padding: 4px 20px; }
+.cab-correction-item { display: flex; align-items: center; gap: 12px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.cab-correction-item:last-child { border-bottom: 0; }
+.cab-correction-step { width: 25px; height: 25px; display: grid; place-items: center; flex: none; border-radius: 50%; background: var(--paper); font-size: 12px; font-weight: 700; }
+.cab-correction-copy { flex: 1; min-width: 0; }
+.cab-correction-title { display: flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 700; }
+.cab-correction-copy p { margin: 4px 0; }
+.cab-current-file { color: var(--muted); font-size: 12px; }
+.cab-file-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.cab-file-ready { color: var(--green); max-width: 190px; overflow: hidden; text-overflow: ellipsis; }
+.cab-correction-footer { display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 16px 20px; background: var(--paper); border-top: 1px solid var(--line); }
+.cab-correction-footer p { margin: 4px 0; }
+
 /* ---------- timeline (сигнатура маршрута, вертикально) ---------- */
 .cab-timeline {
   display: flex;
@@ -393,6 +438,7 @@
   cursor: pointer;
   font-family: inherit;
 }
+.cab-notif-item:active, .cab-app-card:active, .cab-correction .btn:active { transform: scale(0.98); }
 .cab-notif-item:hover { border-color: var(--faint); }
 .cab-notif-dot-wrap {
   width: 10px;
@@ -471,6 +517,11 @@
   .cab-timeline-date { display: block; margin-top: 3px; white-space: normal; }
   .cab-detail .registry { display: block; overflow-x: auto; max-width: 100%; }
   .cab-demo-panel .btn { width: 100%; white-space: normal; }
+  .cab-correction-head, .cab-request-reason, .cab-correction-items, .cab-correction-footer { padding-left: 14px; padding-right: 14px; }
+  .cab-correction-item { align-items: flex-start; flex-wrap: wrap; }
+  .cab-correction-item .btn { width: calc(100% - 37px); margin-left: 37px; }
+  .cab-correction-footer { align-items: stretch; flex-direction: column; }
+  .cab-correction-footer .btn { width: 100%; }
 }
 
 /* карточка пользователя внутри тёмной фото-шапки */

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { Children, cloneElement, isValidElement, useRef, useState } from "react";
 import {
   Info,
   AlertTriangle,
@@ -49,15 +49,26 @@ function formatCalcValue(value, format) {
 // ---------- вспомогательные обёртки ----------
 
 function FieldShell({ field, error, children }) {
+  const describedBy = [field.hint ? `${field.id}-hint` : null, error ? `${field.id}-error` : null].filter(Boolean).join(" ");
+  const enhance = (child) => {
+    if (!isValidElement(child)) return child;
+    const isControl = ["input", "select", "textarea"].includes(child.type);
+    return cloneElement(child, isControl ? {
+      "aria-invalid": error ? "true" : undefined,
+      "aria-errormessage": error ? `${field.id}-error` : undefined,
+      "aria-describedby": describedBy || undefined,
+      "aria-required": field.required || undefined,
+    } : { children: Children.map(child.props.children, enhance) });
+  };
   return (
     <div className="fr-field">
       <label className="label" htmlFor={field.id}>
         {field.label}
         {field.required ? <span className="req">*</span> : null}
       </label>
-      {children}
-      {field.hint ? <div className="hint">{field.hint}</div> : null}
-      {error ? <div className="field-error">{error}</div> : null}
+      {Children.map(children, enhance)}
+      {field.hint ? <div className="hint" id={`${field.id}-hint`}>{field.hint}</div> : null}
+      {error ? <div className="field-error" id={`${field.id}-error`} role="alert">{error}</div> : null}
     </div>
   );
 }
