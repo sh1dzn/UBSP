@@ -90,7 +90,7 @@ function pushLog(state, entry) {
   return item;
 }
 
-function pushNotification(state, { appId = null, title, text }) {
+function pushNotification(state, { appId = null, title, text, target = null }) {
   state.notifCounter += 1;
   const item = {
     id: `ntf-${state.notifCounter}`,
@@ -99,6 +99,7 @@ function pushNotification(state, { appId = null, title, text }) {
     text,
     date: nowIso(),
     read: false,
+    target,
   };
   state.notifications.push(item);
   return item;
@@ -193,17 +194,29 @@ function seedDemoData(state) {
     org,
     stageId: stage?.id || "prescreening",
     stageTitle: stage?.title || "Предварительная заявка",
-    status: "review",
-    statusLabel: `На рассмотрении в ${org}`,
+    status: "info_requested",
+    statusLabel: "Нужны дополнительные сведения до 18 июля",
     answers: {
       companyName: "КХ «Алтын Дала»",
       bin: "010203040506",
       amount: 42000000,
     },
     documents: [
-      { name: "ustav.pdf", size: 184320, status: "verified", signedBy: "ЭЦП (мок)" },
+      { name: "ustav.pdf", size: 184320, status: "correction_required", signedBy: "ЭЦП (мок)", note: "В файле отсутствует последняя страница с отметкой о регистрации" },
       { name: "finotchet_2025.xlsx", size: 92160, status: "verified", signedBy: "ЭЦП (мок)" },
     ],
+    infoRequest: {
+      id: "req-001",
+      requestedAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
+      deadline: "2026-07-18",
+      reason: "Для проверки полномочий и расчёта финансовой устойчивости не хватает полного устава и расшифровки кредиторской задолженности.",
+      contact: "Менеджер АКК · +7 (7172) 55-99-55",
+      status: "open",
+      items: [
+        { id: "charter", title: "Заменить устав", description: "Загрузите полный скан со всеми страницами и отметкой о регистрации.", action: "replace", documentName: "ustav.pdf", acceptedTypes: ".pdf", status: "required" },
+        { id: "payables", title: "Добавить расшифровку кредиторской задолженности", description: "Форма в свободном виде на последнюю отчётную дату.", action: "add", acceptedTypes: ".pdf,.xlsx,.xls", status: "required" },
+      ],
+    },
     timeline,
     nextStage: null,
     createdAt,
@@ -219,8 +232,9 @@ function seedDemoData(state) {
 
   pushNotification(state, {
     appId: id,
-    title: "Заявка принята к рассмотрению",
-    text: `Заявка ${id} на «${service?.title || "Кредитование АПК"}» передана в ${org}`,
+    title: "Нужны дополнительные сведения до 18 июля",
+    text: `По заявке ${id} замените устав и добавьте расшифровку задолженности`,
+    target: { section: "correction", requestId: "req-001" },
   });
   pushNotification(state, {
     appId: null,
@@ -467,6 +481,18 @@ export function advanceApplication(id) {
     app.statusLabel = statusLabelFor(app, service, "review", null);
     pushNotification(state, { appId: id, title: "Заявка на рассмотрении", text: `${id}: ${app.statusLabel}` });
   } else if (nextStatus === "info_requested") {
+    app.infoRequest = {
+      id: `req-${Date.now()}`,
+      requestedAt: now,
+      deadline: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10),
+      reason: "Эксперту нужен полный комплект документов для проверки обеспечения и финансовой устойчивости.",
+      contact: `Менеджер ${service?.org || app.org}`,
+      status: "open",
+      items: [
+        { id: "support", title: "Добавить подтверждение обеспечения", description: "Приложите актуальный документ с оценкой и реквизитами объекта.", action: "add", acceptedTypes: ".pdf,.xlsx,.xls", status: "required" },
+        { id: "finance", title: "Заменить финансовую отчётность", description: "Нужна версия за последний завершённый отчётный период.", action: "replace", documentName: app.documents[1]?.name || "Финансовая отчётность", acceptedTypes: ".pdf,.xlsx,.xls", status: "required" },
+      ],
+    };
     app.timeline.push({
       date: now,
       title: "Запрошены уточнения",
@@ -479,6 +505,7 @@ export function advanceApplication(id) {
       appId: id,
       title: "Требуются уточнения",
       text: `По заявке ${id} запрошены дополнительные документы`,
+      target: { section: "correction", requestId: app.infoRequest.id },
     });
   } else if (nextStatus === "stage_approved") {
     const nextStage = findNextStage(service, app.stageId);
@@ -515,6 +542,37 @@ export function advanceApplication(id) {
 
   app.updatedAt = now;
   state.applications.set(id, app);
+  return app;
+}
+
+export function submitCorrection(id, { files } = {}) {
+  const state = getState();
+  const app = getApplication(id);
+  const request = app.infoRequest;
+  if (app.status !== "info_requested" || !request || request.status !== "open") {
+    throw new ApiError(409, "По этой заявке нет активного запроса на уточнение");
+  }
+  const supplied = new Map((files || []).map((file) => [file.itemId, file]));
+  const missing = request.items.filter((item) => !supplied.has(item.id));
+  if (missing.length) throw new ApiError(400, `Добавьте файлы: ${missing.map((item) => item.title).join(", ")}`);
+
+  request.items = request.items.map((item) => {
+    const file = supplied.get(item.id);
+    if (item.action === "replace") {
+      const old = app.documents.find((doc) => doc.name === item.documentName);
+      if (old) old.status = "replaced";
+    }
+    app.documents.push({ name: file.name, size: file.size, status: "under_review", signedBy: "ЭЦП (мок)", replaces: item.documentName || null });
+    return { ...item, status: "submitted", submittedFile: file.name };
+  });
+  const now = nowIso();
+  request.status = "submitted";
+  request.submittedAt = now;
+  app.status = "review";
+  app.statusLabel = "Уточнения отправлены на проверку";
+  app.updatedAt = now;
+  app.timeline.push({ date: now, title: "Уточнения отправлены", text: `Исправленные документы переданы в ${app.org}. Повторно подавать заявку не нужно.`, kind: "user" });
+  pushNotification(state, { appId: id, title: "Уточнения приняты", text: `Документы по заявке ${id} отправлены эксперту на повторную проверку`, target: { section: "documents" } });
   return app;
 }
 

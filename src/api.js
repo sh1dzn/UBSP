@@ -26,6 +26,7 @@ export const api = {
   application: (id) => request(`/applications/${id}`),
   submitApplication: (payload) => post("/applications", payload),
   advanceApplication: (id) => post(`/applications/${id}/advance`),
+  submitCorrection: (id, payload) => post(`/applications/${id}/correction`, payload),
   submitStage: (id, payload) => post(`/applications/${id}/stage`, payload),
 
   aiMatch: (payload) => post("/ai/match", payload),
