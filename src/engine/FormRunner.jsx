@@ -95,6 +95,8 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
   const [reviewing, setReviewing] = useState(false);
   const [hasDraft, setHasDraft] = useState(() => !!loadDraft(service.id, stage.id));
   const formRef = useRef(null);
+  const errorSummaryRef = useRef(null);
+  const stepHeadingRef = useRef(null);
 
   const visibleSteps = useMemo(() => steps.filter((step) => isVisible(step.when, answers)), [steps, answers]);
   const currentStep = visibleSteps[stepIndex] || null;
@@ -188,17 +190,15 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
     const { errors: stepErrors, valid } = validateStep(currentStep, answers);
     if (!valid) {
       setErrors(stepErrors);
-      const firstId = Object.keys(stepErrors)[0];
       requestAnimationFrame(() => {
-        const el = formRef.current && formRef.current.querySelector(`[data-field-id="${firstId}"]`);
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+        errorSummaryRef.current?.focus();
       });
       return;
     }
     setErrors({});
     if (stepIndex < visibleSteps.length - 1) {
       setStepIndex((i) => i + 1);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      requestAnimationFrame(() => stepHeadingRef.current?.focus());
     } else {
       onSubmit && onSubmit(answers);
       clearDraft(service.id, stage.id);
@@ -291,7 +291,7 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
         </div>
 
         <div className="fr-step-head">
-          <h2>{currentStep.title}</h2>
+          <h2 ref={stepHeadingRef} tabIndex="-1">{currentStep.title}</h2>
           {currentStep.hint ? <p className="muted">{currentStep.hint}</p> : null}
         </div>
 
@@ -302,6 +302,9 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
               <strong>{readiness.ready ? "Заявка готова к отправке" : "Финальная проверка заявки"}</strong>
               <p>{readiness.ready ? "Обязательные данные заполнены, блокирующие условия выполнены." : `Осталось: ${readiness.missing.length} обязательных полей и ${readiness.blockingRules.length} условий.`}</p>
             </div>
+          </div>
+        ) : null}
+
         {branchReasons.length ? (
           <div className="fr-branch-note" role="status">
             <span className="fr-branch-note-label">Почему появились эти поля</span>
@@ -309,7 +312,18 @@ export default function FormRunner({ service, stage, initialAnswers, onSubmit, o
           </div>
         ) : null}
 
-
+        {Object.keys(errors).length ? (
+          <div className="fr-error-summary" role="alert" tabIndex="-1" ref={errorSummaryRef}>
+            <h3>Проверьте заполнение формы</h3>
+            <p>Исправьте отмеченные поля, чтобы продолжить:</p>
+            <ul>
+              {Object.entries(errors).map(([id, message]) => {
+                const field = visibleFields.find((item) => item.id === id);
+                return <li key={id}><a href={`#${id}`}>{field?.label || id}: {message}</a></li>;
+              })}
+            </ul>
+          </div>
+        ) : null}
         <div className="grid12">
           {visibleFields.map((field) => {
             const resolvedField =

@@ -33,6 +33,12 @@
 .fr-branch-note-label { color: var(--sky-deep); font-weight: 700; }
 
 .fr-field { display: flex; flex-direction: column; }
+.fr-fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.fr-error-summary { margin: 0 0 20px; padding: 16px 18px; border: 2px solid var(--red); border-radius: var(--r); background: color-mix(in srgb, var(--red) 7%, var(--card)); }
+.fr-error-summary h3 { font-size: 16px; margin-bottom: 4px; }
+.fr-error-summary p { font-size: 13px; margin-bottom: 8px; }
+.fr-error-summary ul { margin: 0; padding-left: 20px; }
+.fr-error-summary a { color: var(--ink); font-size: 13px; }
 
 .fr-field-col { min-width: 0; }
 
@@ -171,4 +177,7 @@
   .fr-bin-row { flex-wrap: wrap; }
   .fr-bin-row .btn { width: 100%; justify-content: center; }
   .fr-rail-scroll, .fr-steps-rail { overflow-x: auto; }
+  .fr-nav, .fr-nav > .row { align-items: stretch; flex-direction: column-reverse; width: 100%; }
+  .fr-nav .btn { width: 100%; justify-content: center; min-height: 44px; }
+  .fr-radio-grid { grid-template-columns: 1fr; }
 }
