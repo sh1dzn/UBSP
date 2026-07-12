@@ -18,6 +18,7 @@ import api from "../../api.js";
 import Constructor from "./Constructor.jsx";
 import { useAuth } from "../../shell/auth.js";
 import { dictionaries } from "../../data/dictionaries.js";
+import { activeBranchReasons } from "../../engine/branching.js";
 
 const SECTIONS = [
   { id: "services", label: "Услуги", icon: Boxes },
@@ -53,6 +54,15 @@ function countStats(service) {
     for (const step of stageSteps) fields += (step.fields || []).length;
   }
   return { stages: stages.length, steps, fields };
+}
+
+function applicationBranchReasons(app, services) {
+  const service = services.find((item) => item.id === app.serviceId);
+  if (!service) return [];
+  const fields = (service.stages || []).flatMap((stage) =>
+    (stage.steps || []).flatMap((step) => step.fields || [])
+  );
+  return activeBranchReasons(fields, app.answers || {}, service, dictionaries);
 }
 
 function emptyService() {
@@ -344,24 +354,34 @@ export default function Admin({ go, route, notify, openAssistant }) {
                       <th>Номер</th>
                       <th>Услуга</th>
                       <th>Заявитель</th>
+                      <th>Маршрут анкеты</th>
                       <th>Статус</th>
                       <th>Дата</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {applications.map((app) => (
-                      <tr key={app.id}>
+                    {applications.map((app) => {
+                      const branchReasons = applicationBranchReasons(app, services);
+                      return <tr key={app.id}>
                         <td className="mono">{app.id}</td>
                         <td>{app.serviceTitle}</td>
                         <td>{app.applicant?.name || app.answers?.companyName || "—"}</td>
+                        <td>
+                          {branchReasons.length ? (
+                            <div className="adm-branch-reasons" title="Поля и документы, включённые ответами заявителя">
+                              {branchReasons.slice(0, 3).map((reason) => <span className="chip chip-line" key={reason}>{reason}</span>)}
+                              {branchReasons.length > 3 ? <span className="muted small">+{branchReasons.length - 3}</span> : null}
+                            </div>
+                          ) : <span className="muted small">Базовый маршрут</span>}
+                        </td>
                         <td>
                           <span className={`chip ${APP_STATUS_CHIP[app.status] || "chip-line"}`}>
                             {app.statusLabel || app.status}
                           </span>
                         </td>
                         <td className="mono small">{(app.createdAt || "").slice(0, 10)}</td>
-                      </tr>
-                    ))}
+                      </tr>;
+                    })}
                   </tbody>
                 </table>
               </div>
