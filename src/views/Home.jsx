@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { Search, ArrowRight, MapPin, BarChart3 } from "lucide-react";
+import { Search, ArrowRight, MapPin, BarChart3, PlayCircle } from "lucide-react";
 import api from "../api.js";
 
 const EXAMPLE_CHIPS = [
@@ -99,6 +99,18 @@ export default function Home({ go, notify, openAssistant }) {
                 </button>
               ))}
             </div>
+          </div>
+          <div className="pub-demo-start">
+            <div>
+              <span className="eyebrow on-dark">Сквозной демо-сценарий</span>
+              <p>Пройдите путь предпринимателя: AI-подбор → заявка → решение → второй этап → конструктор.</p>
+            </div>
+            <button
+              className="btn btn-gold"
+              onClick={() => openAssistant("Хочу купить 20 вагонов в лизинг")}
+            >
+              <PlayCircle size={17} /> Начать демо с AI
+            </button>
           </div>
         </div>
       </section>
